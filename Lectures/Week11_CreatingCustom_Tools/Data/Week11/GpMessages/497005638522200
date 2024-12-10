@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?><messages><msg code="0" type="2">Start Time: Saturday, November 2, 2024 8:05:05 PM</msg><msg code="-2147467259" type="100">Traceback (most recent call last):
+  File "F:\Clark_Universiy\Clark_Teaching\Git_Repo\ssj-302\docs\Lectures\Week11_CreatingCustom_Tools\scripts\density_extract.py", line 20, in &lt;module&gt;
+    percentile_value = float(100) - top_percentage  # For top 10%, we need the 90th percentile
+TypeError: unsupported operand type(s) for -: 'float' and 'str'
+</msg><msg code="0" type="0">Failed script Density Extract...</msg><msg code="-2147467259" type="100">Failed to execute (DensityExtract).</msg><msg code="0" type="3">Failed at Saturday, November 2, 2024 8:05:05 PM (Elapsed Time: 0.48 seconds)</msg></messages>
