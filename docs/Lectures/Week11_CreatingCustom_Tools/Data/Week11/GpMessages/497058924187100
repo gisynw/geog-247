@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?><messages><msg code="0" type="2">Start Time: Saturday, November 2, 2024 8:05:58 PM</msg><msg code="-2147467259" type="100">Traceback (most recent call last):
+  File "F:\Clark_Universiy\Clark_Teaching\Git_Repo\ssj-302\docs\Lectures\Week11_CreatingCustom_Tools\scripts\density_extract.py", line 23, in &lt;module&gt;
+    threshold_value = np.percentile(density_values, percentile_value)  # Calculate the specified percentile
+  File "&lt;__array_function__ internals&gt;", line 5, in percentile
+  File "G:\ArcGIS_Pro\ArcGISPRO\bin\Python\envs\arcgispro-py3\Lib\site-packages\numpy\lib\function_base.py", line 3818, in percentile
+    return _quantile_unchecked(
+  File "G:\ArcGIS_Pro\ArcGISPRO\bin\Python\envs\arcgispro-py3\Lib\site-packages\numpy\lib\function_base.py", line 3937, in _quantile_unchecked
+    r, k = _ureduce(a, func=_quantile_ureduce_func, q=q, axis=axis, out=out,
+  File "G:\ArcGIS_Pro\ArcGISPRO\bin\Python\envs\arcgispro-py3\Lib\site-packages\numpy\lib\function_base.py", line 3515, in _ureduce
+    r = func(a, **kwargs)
+  File "G:\ArcGIS_Pro\ArcGISPRO\bin\Python\envs\arcgispro-py3\Lib\site-packages\numpy\lib\function_base.py", line 4050, in _quantile_ureduce_func
+    n = np.isnan(ap[-1])
+IndexError: index -1 is out of bounds for axis 0 with size 0
+</msg><msg code="0" type="0">Failed script Density Extract...</msg><msg code="-2147467259" type="100">Failed to execute (DensityExtract).</msg><msg code="0" type="3">Failed at Saturday, November 2, 2024 8:05:59 PM (Elapsed Time: 0.47 seconds)</msg></messages>
