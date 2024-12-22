@@ -92,7 +92,7 @@ plugins:
 nav:
     - Home: index.md
     - Syllabus:
-      - Syllabus Fall 2024: "Content/Fall2024_syllabus.ipynb"
+      - Syllabus Fall 2024: "Content/Spring2025_syllabus.ipynb"
     - Softwares:
       - Visual Studio Code: "software/Visual-Studio-Code.ipynb"
       - ArcGIS Pro: "software/ArcGISPro.ipynb"
