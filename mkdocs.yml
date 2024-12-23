@@ -97,5 +97,5 @@ nav:
       - RStudio & R: "software/Software_Install.ipynb"
     - Lectures:
       - Week 1 Introduction: "Lectures/Week01/week01.ipynb"  
-    - Demo:
-      - Week 1 Demo: "Demo/Week01_code.ipynb"
+    - Code:
+      - Week 1 Code: "Demo/Week01_code.ipynb"
