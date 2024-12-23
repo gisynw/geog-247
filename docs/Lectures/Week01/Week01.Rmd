@@ -10,7 +10,7 @@ output:
 ---
 
 # Working directory
-```{r setup, include=FALSE}
+```{}
 # get working directory
 getwd()
 
