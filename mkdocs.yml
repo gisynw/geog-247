@@ -94,33 +94,8 @@ nav:
     - Syllabus:
       - Syllabus Fall 2024: "Content/Spring2025_syllabus.ipynb"
     - Softwares:
-      - Visual Studio Code: "software/Visual-Studio-Code.ipynb"
-      - ArcGIS Pro: "software/ArcGISPro.ipynb"
+      - RStudio & R: "software/Software_Install.ipynb"
     - Lectures:
-      - Week 1 Introdyction: "Lectures/Week01Intro_Lecture.ipynb"
-      - Week 2 Python Fundamental: "Lectures/Week02PyFdMetal.ipynb"
-      - Week 3 Python Fundamental 2: "Lectures/Week03Fundamental02.ipynb"
-      - Week 4 Pandas: "Lectures/Week04_Pandas.ipynb"
-      - Week 5 Arcpy: "Lectures/Week05_Arcpy.ipynb"
-      - Week 6 Data Visualization: "Lectures/Week06_visualization/Week06_visualization_instructor.ipynb"
-      - Week 8 Spatial Analysis in Arcpy: "Lectures/Week08_Arcpy_Instructor.ipynb"
-      - Week 9 Raster: "Lectures/Week09_Geopandas_Raster/Week09_raster_Instructor.ipynb"
-      - Week 10 Raster Part 2: "Lectures/Week10_multiple_bands/Week10_instructor.ipynb"
-      - Week 11 Custom Tool in ArcGIS Pro: "Lectures/Week11_CreatingCustom_Tools/scripts/Week11_custom_tool.ipynb"
-      - Week 12 geemap in Python: "Lectures/Week12/geemap.ipynb"
-      - Week 13 Version Control: "Lectures/Week13/week13.ipynb"
-
+      - Week 1 Introduction: "Lectures/Week01/week01.ipynb"  
     - Demo:
-      - Week 1 Demo: "Demo/Week01_Python_Intro.ipynb"
-      - Week 6 Demo: "Demo/Week06_visualization_Demo.ipynb"
-    - Labs:
-      - Lab 01: "Labs/Lab01_student.ipynb"
-      - Lab 02: "Labs/Lab02_student.ipynb"
-      - Lab 03: "Labs/Lab03_student.ipynb"
-      - Lab 04: "Labs/Lab04_student.ipynb"
-      - Lab 05: "Labs/Lab05/Lab05_student.ipynb"
-      - Lab 08: "Labs/Lab08/Lab08_Student.ipynb"
-      - Lab 09: "Labs/Lab09/Lab09.ipynb"
-      - Lab 10: "Labs/Lab10/Lab10.pdf"
-      - Lab 11: "Labs/Lab11/Lab11.pdf"
- 
+      - Week 1 Demo: "Demo/Week01.html"
