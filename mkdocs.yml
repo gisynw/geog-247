@@ -97,5 +97,7 @@ nav:
       - RStudio & R: "software/Software_Install.ipynb"
     - Lectures:
       - Week 1 Introduction: "Lectures/Week01/week01.ipynb"  
+    - Labs:
+      - Lab 01: "Labs\Lab01\Lab01geog247_347Spring2025.pdf"
     - Code:
       - Week 1 Code: "Demo/Week01_code.ipynb"
