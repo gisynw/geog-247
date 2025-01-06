@@ -1,0 +1,92 @@
+---
+title: "Week02_Lecture"
+author: "Yanan Wu"
+date: "2025-01-06"
+output: 
+  html_document:
+    df_print: paged
+    toc: TRUE
+    toc_float: TRUE
+---
+
+## Sampling distribution
+
+Suppose you want to estimate the proportion of university students who regularly use public transportation, but you don’t have access to the entire student population. In this case, you could take a sample of students from different campuses and use the proportion of students in your sample who use public transportation as your best guess for the unknown proportion in the overall student population.
+
+
+```{r}
+stu_size <- 250000000
+public_use <- c(rep("public", 0.88 * stu_size),rep("nopublic", 0.12 * stu_size))
+# 2. Sample 1000 entries without replacement.
+p_hat_values <- c()
+
+# Repeat the sampling process 1000 times
+for (i in 1:1000) {
+  # Sample 1000 entries without replacement
+  sampled_students <- sample(public_use, size = 1000)
+  
+  # Compute p-hat for the current sample
+  p_hat_values <- c(p_hat_values, sum(sampled_students == "public") / 1000)
+}
+
+# Display the first few p-hat values
+head(p_hat_values)
+mean(p_hat_values)
+# Plot the sampling distribution of p-hat
+hist(p_hat_values, main = "Simulated sample proportion", xlab = "sample_proportion", col = "lightblue", border = "white")
+```
+## Calculating confidence interval
+calculate the confidence interval when sample size is 1000, sample proportion is 0.656 for a 95% confidence interval
+```{r}
+prop.test(x=656, n = 1000, conf.level = 0.95)
+```
+
+
+```{r}
+library(ggplot2)
+
+# Create a data frame with two normal distributions
+data <- data.frame(
+  x = seq(-5, 8, length.out = 1000),
+  y1 = dnorm(seq(-5, 8, length.out = 1000), mean = 0, sd = 1),
+  y2 = dnorm(seq(-5, 8, length.out = 1000), mean = 3, sd = 1)
+)
+
+# Plot the two normal distributions using ggplot2
+ggplot(data, aes(x = x)) +
+  geom_line(aes(y = y1, color = "Mean = 0"), size = 1) +
+  geom_line(aes(y = y2, color = "Mean = 3"), size = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "blue", size = 1) +
+  geom_vline(xintercept = 3, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "",
+       x = "x",
+       y = "Density") +
+  scale_color_manual(values = c("Mean = 0" = "blue", "Mean = 3" = "red")) +
+  theme_minimal()
+```
+## statistics of p-value
+
+A researcher claims that 40% of the students at a university are left-handed. A sample of 200 students shows that 90 are left-handed. Is the researcher’s claim accurate at the 5% significance level?
+
+### 1. State hypothesis
+
+# H_0: p = 0.40
+# H_a: p != 0.40
+
+```{r}
+count <- 90  # Number of left-handed students in sample
+nobs <- 200  # Total number of students
+value <- 0.40  # Hypothesized proportion
+
+library(stats)
+result <- prop.test(x = 90, n = 200, p = 0.4, alternative = "two.sided", conf.level = 0.95)
+
+# Display the result
+print(result)
+```
+
+
+
+
+
+
