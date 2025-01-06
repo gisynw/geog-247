@@ -98,6 +98,6 @@ nav:
     - Lectures:
       - Week 1 Introduction: "Lectures/Week01/week01.ipynb"  
     - Labs:
-      - Lab 01: "Labs\Lab01\Lab01geog247_347Spring2025.pdf"
+      - Lab 01: "Labs/Lab01/Lab01.ipynb"
     - Code:
       - Week 1 Code: "Demo/Week01_code.ipynb"
