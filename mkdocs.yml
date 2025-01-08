@@ -92,12 +92,14 @@ plugins:
 nav:
     - Home: index.md
     - Syllabus:
-      - Syllabus Fall 2024: "Content/Spring2025_syllabus.ipynb"
+      - Syllabus Spring 2025: "Content/Spring2025_syllabus.ipynb"
     - Softwares:
       - RStudio & R: "software/Software_Install.ipynb"
     - Lectures:
       - Week 1 Introduction: "Lectures/Week01/week01.ipynb"  
+      - Week 2 Inferential Statistics: "Lectures/Week02/Week02_InferentialStas.pdf"
     - Labs:
       - Lab 01: "Labs/Lab01/Lab01.ipynb"
+      - Lab 02: "Labs/Lab02/Lab02geog247_347Spring2025.pdf"
     - Code:
       - Week 1 Code: "Demo/Week01_code.ipynb"
