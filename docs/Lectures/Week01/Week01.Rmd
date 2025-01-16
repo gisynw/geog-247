@@ -127,7 +127,7 @@ if (!require('ggplot2')) install.packages('ggplot2')
 #e.g., TexMix, rgdal
 ```
 
-## Regression
+# Regression
 
 ```{r}
 # Step 1: Generate serial data with more noise
@@ -155,7 +155,7 @@ ggplot(data, aes(x = x, y = y)) +
   theme_minimal()
 ```
 
-## 3D regresison
+# 3D regresison
 
 ```{r warning=FALSE}
 # Load necessary library
