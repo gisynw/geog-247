@@ -1,34 +1,50 @@
-# # Linear regression
-# library(ggplot2)
-# 
-# # Step 1: Generate serial data with more noise
-# set.seed(123)  # For reproducibility
-# n <- 100  # Number of data points
-# x <- seq(1, n)  # Serial data (x variable)
-# y <- 3 * x + rnorm(n, mean = 0, sd = 50)  # More noise added to y
-# 
-# # Step 2: Create a data frame
-# data <- data.frame(x = x, y = y)
-# 
-# # Step 3: Fit a linear model
-# model <- lm(y ~ x, data = data)
-# 
-# r_squared <- summary(model)$r.squared
-# 
-# # Step 4: Plot the regression line and confidence interval
-# ggplot(data, aes(x = x, y = y)) +
-#   geom_point(color = "blue", size = 2) +  # Scatter plot
-#   geom_smooth(method = "lm", color = "red", fill = "green", level = 0.95) +  # Regression line with 95% CI
-#   annotate("text", x = 10, y = max(data$y) - 50, label = paste("R² = ", round(r_squared, 2)), size = 5, color = "darkred") + 
-#   labs(title = "Linear Regression with Confidence Interval",
-#        x = "Independent Variable (X)",
-#        y = "Dependent Variable (Y)") +
-#   theme_minimal()
+## clean all objects in environment
+rm(list = ls())
+
+## download package
+#1. 
+if (!require('ggplot2')) install.packages('ggplot2')
+
+#2.
+# manually download package
+
+#
+#Download package that was removed from CRAN repository
+#e.g., TexMix, rgdal
+
+install.packages('TexMix')
+
+# Step 1: Generate serial data with more noise
+set.seed(123)  # For reproducibility
+n <- 100  # Number of data points
+x <- seq(1, n)  # Serial data (x variable)
+y <- 3 * x + rnorm(n, mean = 0, sd = 50)  # More noise added to y
+
+# Step 2: Create a data frame
+data <- data.frame(x = x, y = y)
+
+# Step 3: Fit a linear model
+model <- lm(y ~ x, data = data)
+
+r_squared <- summary(model)$r.squared
+
+# Step 4: Plot the regression line and confidence interval
+ggplot(data, aes(x = x, y = y)) +
+  geom_point(color = "blue", size = 2) +  # Scatter plot
+  geom_smooth(method = "lm", color = "red", fill = "green", level = 0.95) +  # Regression line with 95% CI
+  annotate("text", x = 10, y = max(data$y) - 50, label = paste("R² = ", round(r_squared, 2)), size = 5, color = "darkred") +
+  labs(title = "Linear Regression with Confidence Interval",
+       x = "Independent Variable (X)",
+       y = "Dependent Variable (Y)") 
++ theme_minimal()
 
 ## Multiple regresison
 # Load necessary library
 library("ISLR")
 data('College')
+
+??scatter3D
+library(plot3D)
 # Step 1: Generate synthetic data
 set.seed(123)  # For reproducibility
 n <- 100  # Number of data points
