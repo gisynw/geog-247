@@ -100,7 +100,7 @@ nav:
       - Week 2 Inferential Statistics: "Lectures/Week02/Week02_InferentialStas.pdf"
       - Week 3 Data Exploration: "Lectures/Week03/Week03_DataExploration.pdf"
     - Labs:
-      - Lab 01: "Labs/Lab01/Lab01.ipynb"
-      - Lab 02: "Labs/Lab02/Lab02geog247_347Spring2025.pdf"
+      - Practice 01: "Labs/Practice01/Practice01.ipynb"
+      - Lab 01: "Labs/Lab02/Lab02geog247_347Spring2025.pdf"
     - Code:
       - Week 1 Code: "Demo/Week01_code.ipynb"
