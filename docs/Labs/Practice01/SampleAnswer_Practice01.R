@@ -1,6 +1,6 @@
 ## Task 1
 getwd()
-setwd('D:\\Teaching_Clark\\GitRepo\\Spring2025\\geog-247\\docs\\Labs\\Lab01')
+setwd('F:\\Clark_Universiy\\Clark_Teaching\\2025Spring\\geog-247_Statistics\\docs\\Labs\\Practice01')
 
 ## Task 2
 economics = read.csv('economic_indicators.csv')
