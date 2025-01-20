@@ -8,6 +8,60 @@ output:
     toc: TRUE
     toc_float: TRUE
 ---
+## Calculating confidence interval
+
+calculate the confidence interval when sample size is 800, sample proportion is 0.34 for a 95% confidence interval
+
+```{r}
+library(interpretCI)
+x=propCI(n = 800, p = 0.34, alpha = 0.05)
+x
+```
+
+```{r}
+n = 800
+p = 0.34
+
+se = sqrt(p*(1-p)/n)
+print(c('stand error:', se))
+
+margin <- qnorm(0.975)*se
+print(c('margin of error:', margin))
+
+print(c('confidence interval: ', c(p - margin, p + margin)))
+```
+
+
+## statistics of p-value
+
+A researcher claims that 46% of the students at a university are left-handed. A sample of 1267 students shows that 559 are left-handed. Is the researcher’s claim accurate at the 1% significance level?
+
+### 1. State hypothesis
+
+# H_0: p = 0.46
+# H_a: p != 0.46
+
+```{r}
+count <- 1267  # Number of left-handed students in sample
+x_success <- 559  # Total number of students
+
+library(stats)
+result <- prop.test(x = x_success, n = count, p = 0.46, alternative = "two.sided", conf.level = 0.9)
+
+# Display the result
+print(result)
+```
+### calculation of x-squared with continuity correction 
+
+```{r}
+p_hat = 559/1267
+p_h0 = 0.46
+
+x_squared_corrected <- ((abs(p_hat - p_h0) - (0.5 / count))^2) / (p_h0 * (1 - p_h0) / count)
+print(x_squared_corrected)
+
+
+```
 
 ## Sampling distribution
 
@@ -35,11 +89,8 @@ mean(p_hat_values)
 # Plot the sampling distribution of p-hat
 hist(p_hat_values, main = "Simulated sample proportion", xlab = "sample_proportion", col = "lightblue", border = "white")
 ```
-## Calculating confidence interval
-calculate the confidence interval when sample size is 1000, sample proportion is 0.656 for a 95% confidence interval
-```{r}
-prop.test(x=656, n = 1000, conf.level = 0.95)
-```
+
+
 
 
 ```{r}
@@ -64,26 +115,7 @@ ggplot(data, aes(x = x)) +
   scale_color_manual(values = c("Mean = 0" = "blue", "Mean = 3" = "red")) +
   theme_minimal()
 ```
-## statistics of p-value
 
-A researcher claims that 40% of the students at a university are left-handed. A sample of 200 students shows that 90 are left-handed. Is the researcher’s claim accurate at the 5% significance level?
-
-### 1. State hypothesis
-
-# H_0: p = 0.40
-# H_a: p != 0.40
-
-```{r}
-count <- 90  # Number of left-handed students in sample
-nobs <- 200  # Total number of students
-value <- 0.40  # Hypothesized proportion
-
-library(stats)
-result <- prop.test(x = 90, n = 200, p = 0.4, alternative = "two.sided", conf.level = 0.95)
-
-# Display the result
-print(result)
-```
 
 
 
