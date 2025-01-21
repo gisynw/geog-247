@@ -19,8 +19,8 @@ plot(0, 0, type = "n", xlim = c(0.65, 0.80), ylim = c(1, 2),
 axis(1, at = seq(0.65, 0.80, by = 0.01))
 
 # plot two confidence interval
-segments(lower_95, 1.2, upper_95, 1.2, col = "blue", lwd = 2)  # 第一条线，置信区间 0.69 - 0.75
-segments(lower_99, 1.1, upper_99, 1.1, col = "red", lwd = 2)       # 第二条线，置信区间 0.68 - 0.76
+segments(lower_95, 1.2, upper_95, 1.2, col = "blue", lwd = 2)  
+segments(lower_99, 1.1, upper_99, 1.1, col = "red", lwd = 2)      
 
 # add start and end point of confidence interval
 points(c(lower_95, upper_95), c(1.2, 1.2), pch = 16, col = "blue")
