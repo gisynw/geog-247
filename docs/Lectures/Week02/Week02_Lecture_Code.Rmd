@@ -8,7 +8,7 @@ output:
     toc: TRUE
     toc_float: TRUE
 ---
-## Calculating confidence interval
+## 1. Calculating confidence interval
 
 calculate the confidence interval when sample size is 800, sample proportion is 0.34 for a 95% confidence interval
 
@@ -31,83 +31,17 @@ print(c('margin of error:', margin))
 print(c('confidence interval: ', c(p - margin, p + margin)))
 ```
 
-
-## statistics of p-value
-
-A researcher claims that 46% of the students at a university are left-handed. A sample of 1267 students shows that 559 are left-handed. Is the researcher’s claim accurate at the 1% significance level?
-
-### 1. State hypothesis
-
-# H_0: p = 0.46
-# H_a: p != 0.46
+## 2. Variability of sample
 
 ```{r}
-count <- 1267  # Number of left-handed students in sample
-x_success <- 559  # Total number of students
+pop_size <- 250000000
+possible_entries <- c(rep("support", 0.88 * pop_size), rep("not", 0.12 * pop_size))
 
-library(stats)
-result <- prop.test(x = x_success, n = count, p = 0.46, alternative = "two.sided", conf.level = 0.9)
+sampled_entries <- sample(possible_entries, size = 1000)
 
-# Display the result
-print(result)
+sum(sampled_entries == "support") / 1000
 ```
-### calculation of x-squared with continuity correction 
-
-```{r}
-p_hat = 559/1267
-p_h0 = 0.46
-
-x_squared_corrected <- ((abs(p_hat - p_h0) - (0.5 / count))^2) / (p_h0 * (1 - p_h0) / count)
-print(x_squared_corrected)
-
-
-```
-
-## Sampling distribution
-
-```{r}
-# Set seed for reproducibility
-set.seed(123)
-
-# Parameters
-population_size <- 10000  # Size of the population
-sample_size <- 30         # Sample size for each sample
-num_samples <- 1000       # Number of samples to draw
-
-# Generate a non-normal population (Uniform distribution)
-population <- runif(population_size, min = 0, max = 100)
-
-# Take repeated samples and compute sample means
-sample_means <- numeric(num_samples)
-for (i in 1:num_samples) {
-  sample <- sample(population, sample_size, replace = TRUE)
-  sample_means[i] <- mean(sample)
-}
-
-# Plot the original population distribution
-hist(population, breaks = 50, col = "steelblue", main = "Population Distribution (Uniform)", 
-     xlab = "Value", probability = TRUE)
-
-# Plot the distribution of sample means
-hist(sample_means, breaks = 50, col = "orange", main = "Sample Means Distribution (CLT Demonstration)", 
-     xlab = "Sample Mean", probability = TRUE)
-
-# Overlay normal curve on sample means distribution
-xfit <- seq(min(sample_means), max(sample_means), length = 100)
-yfit <- dnorm(xfit, mean = mean(sample_means), sd = sd(sample_means))
-lines(xfit, yfit, col = "red", lwd = 2)
-
-# Print summary statistics
-cat("Population Mean:", mean(population), "\n")
-cat("Sample Means Mean:", mean(sample_means), "\n")
-cat("Sample Means Standard Deviation:", sd(sample_means), "\n")
-
-```
-
-
-
-Suppose you want to estimate the proportion of university students who regularly use public transportation, but you don’t have access to the entire student population. In this case, you could take a sample of students from different campuses and use the proportion of students in your sample who use public transportation as your best guess for the unknown proportion in the overall student population.
-
+### 2.1 Sampling distribution of proportion 
 
 ```{r}
 stu_size <- 250000000
@@ -118,21 +52,61 @@ p_hat_values <- c()
 # Repeat the sampling process 1000 times
 for (i in 1:1000) {
   # Sample 1000 entries without replacement
-  sampled_students <- sample(public_use, size = 1000)
-  
+  sample <- sample(public_use, size = 1000)
   # Compute p-hat for the current sample
-  p_hat_values <- c(p_hat_values, sum(sampled_students == "public") / 1000)
+  p_hat_values <- c(p_hat_values, sum(sample == "public") / 1000)
 }
 
 # Display the first few p-hat values
-head(p_hat_values)
-mean(p_hat_values)
+mean_value = mean(p_hat_values)
 # Plot the sampling distribution of p-hat
-hist(p_hat_values, main = "Simulated sample proportion", xlab = "sample_proportion", col = "lightblue", border = "white")
+hist(p_hat_values, main = "Sampling distribution of sample proportion", xlab = "sample_proportion", col = "lightblue", border = "white")
+abline(v = mean_value, col = "red", lwd = 2, lty = 2)
+
+# Add text to display the mean value
+text(mean_value, max(hist(p_hat_values, plot = FALSE)$counts), 
+     labels = paste("Mean =", round(mean_value, 3)), 
+     pos = 4, col = "red", cex = 1.2)
+
 ```
 
 
+### 2.2 Sampling distribution from sample
 
+Suppose you want to estimate the proportion of people who support solor energy expansion, but you don’t have access to the entire population. In this case, you could take a sample of population and use the proportion of sample in your sample who support solar energy expansion as your best guess for the unknown proportion in the overall population.
+
+
+```{r}
+stu_size <- 250000000
+public_use <- c(rep("public", 0.88 * stu_size),rep("nopublic", 0.12 * stu_size))
+# 2. Sample 1000 entries without replacement.
+p_hat_values <- c()
+
+samples <- sample(public_use, size = 1000)
+
+# Repeat the sampling process 1000 times
+for (i in 1:1000) {
+  # Sample 1000 entries without replacement
+  sampled_students <- sample(samples, size = 500)
+  # Compute p-hat for the current sample
+  p_hat_values <- c(p_hat_values, sum(sampled_students == "public") / 500)
+}
+
+# Display the first few p-hat values
+mean_value = mean(p_hat_values)
+# Plot the sampling distribution of p-hat
+hist(p_hat_values, main = "Simulated sample proportion", xlab = "sample_proportion", col = "blue", border = "white")
+
+abline(v = mean_value, col = "red", lwd = 2, lty = 2)
+
+# Add text to display the mean value
+text(mean_value, max(hist(p_hat_values, plot = FALSE)$counts), 
+     labels = paste("Mean =", round(mean_value, 3)), 
+     pos = 4, col = "red", cex = 1.2)
+
+```
+
+## 3. Code about graphs in slides
 
 ```{r}
 library(ggplot2)
