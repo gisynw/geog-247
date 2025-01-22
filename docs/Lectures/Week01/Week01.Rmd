@@ -10,7 +10,7 @@ output:
 ---
 
 # Working directory
-```{}
+```{r}
 # get working directory
 getwd()
 
@@ -20,7 +20,7 @@ getwd()
 ```
 
 # Terminate script
-```{}
+```{r}
 i <- 1
 while (i>0) {
   print('good')
@@ -28,7 +28,7 @@ while (i>0) {
 ```
 
 # Get help for activate libraries
-```{}
+```{r}
 help('dplyr')
 ?dplyr
 
@@ -38,7 +38,7 @@ help.search('dplyr')
 ```
 
 # Variables
-```{}
+```{r}
 x <- 10 
 y <- 10 
 sum <- x + y  # Add x and y
@@ -50,7 +50,7 @@ print(product)  # Output the product
 ```
 
 ## Changing Variable Values
-```{}
+```{r}
 x <- 15  # Reassign a new value to x
 print(x)  # Output the updated value of x
 
@@ -61,7 +61,7 @@ pi_value <- 3.14         # Numeric
 ```
 
 # List
-```{}
+```{r}
 #creating a list
 my_list <- list(
   name = "John Doe",
@@ -84,12 +84,12 @@ print(my_list$scores)  # Outputs: c(85, 90, 95)
 ```
 
 # Clean environment
-```{}
+```{r}
 rm(list=ls())
 ```
 
 # Read csv
-```{}
+```{r}
 data <- read.csv("parks_trees.csv")
 
 # Display the first few rows of the dataset
@@ -103,7 +103,7 @@ summary(data)
 ```
 
 ## Display column names
-```{}
+```{r}
 colnames(data)
 
 # Inspecting a specific column
