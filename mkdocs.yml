@@ -95,6 +95,7 @@ nav:
       - Syllabus Spring 2025: "Content/Spring2025_syllabus.ipynb"
     - Softwares:
       - RStudio & R: "software/Software_Install.ipynb"
+      - TexMix package in R: "software/TexMix.pdf"
     - Lectures:
       - Week 1 Introduction: "Lectures/Week01/week01_Intro.ipynb"  
       - Week 2 Inferential Statistics: "Lectures/Week02/Week02_InferentialStas.pdf"

@@ -9,7 +9,13 @@ wifi = readxl::read_excel('free_wifi_locations.xls')
 ## Task 3 
 economics$diff_unemp_labor = economics$labor_force_part_rate - economics$unemp_rate 
 economics[order(economics$diff_unemp_labor, decreasing = TRUE),c('Year','Month')]
+
 ?order
+
+summary(wifi)
+
+summary(wifi$OID_)
+summary(wifi$neighborhood_id)
 
 economics$Time = c(1:nrow(economics))
 colnames(economics)
