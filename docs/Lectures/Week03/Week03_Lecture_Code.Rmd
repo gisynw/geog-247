@@ -11,7 +11,6 @@ output: html_document
 library(e1071);library(car)
 ```
 
-
 ## Left-Skewness
 
 ```{r}
