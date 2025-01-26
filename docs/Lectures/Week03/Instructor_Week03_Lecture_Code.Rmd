@@ -1,0 +1,429 @@
+---
+title: "Week03_Lecture_Code"
+author: "Yanan Wu"
+date: "2025-01-06"
+output: html_document
+  html_document:
+    df_print: paged
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r eval=FALSE, include=FALSE}
+if (!require(ggplot2)) install.packages("ggplot2", dependencies = TRUE)
+
+install.packages("conmat", repos = "https://idem-lab.r-universe.dev")
+
+library(e1071);library(ggplot2);library(plotly);library(tidyverse);library(moments)
+library(conmat);library(sf);library(leaflet); library(car)
+```
+
+## Line graph
+
+This dataset contains daily closing prices of major European stock indices.
+
+```{r}
+data("EuStockMarkets")
+
+# Convert to a time series object
+stocks <- as.data.frame(EuStockMarkets)
+
+# Plot the line graph
+plot(stocks$DAX, type = "l", col = "blue", lwd = 2,
+     main = "DAX Stock Index (1991-1998)", xlab = "Days", ylab = "Index Value")
+```
+## Scatterplot
+
+This dataset contains numerical measurements of sepal and petal length and width for three species of iris flowers.
+
+```{r}
+data("iris")
+ggplot(data = iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+  geom_point(size = 3) + labs(title = "Sepal Length vs Sepal Width by Species")
+```
+## Histogram
+
+This dataset contains daily air quality measurements from New York in 1973, including variables like temperature, wind speed, and ozone levels.
+
+```{r}
+data('airquality')
+par(mfrow = c(2, 2))
+
+# Define the break values
+breaks_list <- c(3, 10, 20, 30)
+
+# Loop through the break values and plot the histograms
+for (i in breaks_list) {
+  hist(airquality$Temp,
+       breaks = i,
+       main = paste("Histogram with", i, "Breaks"),
+       xlab = "Temperature (°F)",
+       col = "lightblue",
+       border = "black")
+}
+
+```
+## Skewness
+
+```{r}
+set.seed(123)  # For reproducibility
+left_skewed_data <- rbeta(1000, shape1 = 55, shape2 = 2)
+
+# Plot a histogram to visualize the left-skewed data
+hist(left_skewed_data, breaks = 20, col = "lightblue", main = "", xlab = "Values", freq = FALSE)
+
+lines(density(left_skewed_data, na.rm = TRUE), 
+      col = "red", 
+      lwd = 2)
+
+abline(v = median(left_skewed_data), col = 'darkblue', lwd = 4, lty = 2)
+abline(v = mean(left_skewed_data), col = 'darkgreen', lwd = 4, lty = 2)
+
+skewness(left_skewed_data)
+
+qqnorm(left_skewed_data, ylab = 'Data')
+qqline(left_skewed_data, col = "blue")
+
+```
+## Right-skewness
+```{r}
+data("airquality")
+hist(na.omit(airquality$Ozone), 
+     main = "", 
+     xlab = "Ozone (ppb)", 
+     col = "lightblue", 
+     border = "black",
+     breaks = 20,
+     freq = FALSE)
+
+lines(density(airquality$Ozone, na.rm = TRUE), 
+      col = "red", 
+      lwd = 2)
+
+abline(v = median(na.omit(airquality$Ozone)), col = 'darkblue', lwd = 4, lty = 2)
+abline(v = mean(na.omit(airquality$Ozone)), col = 'darkgreen', lwd = 4, lty = 2)
+
+skewness(na.omit(airquality$Ozone))
+
+qqnorm(na.omit(airquality$Ozone), ylab = 'Ozone')
+qqline(na.omit(airquality$Ozone), col = 'blue')
+
+```
+
+```{r}
+Boxplot(na.omit(airquality$Ozone), ylab = 'Ozone')
+```
+
+
+```{r}
+data("iris")
+hist(iris$Sepal.Length, 
+     main = "", 
+     xlab = "Sepal Length (cm)", 
+     col = "lightblue", 
+     border = "black",
+     breaks = 20,
+     freq = FALSE)
+
+lines(density(iris$Sepal.Length, na.rm = TRUE), 
+      col = "red", 
+      lwd = 2)
+```
+## Outlier
+
+```{r}
+set.seed(123)
+data_with_outlier <- c(rnorm(100, mean = 50, sd = 5), 120)  # Adding an outlier at 120
+
+# Plot the histogram
+hist(data_with_outlier, 
+     main = "Histogram Showing Outlier", 
+     xlab = "Values", 
+     col = "lightblue", 
+     border = "black")
+
+# Highlight the outlier with a red vertical line
+# abline(v = 120, col = "red", lwd = 2, lty = 2)
+```
+```{r}
+# Generate a large dataset with a normal distribution
+set.seed(123)
+large_data <- rnorm(10000, mean = 50, sd = 10)
+
+# Convert the data to a data frame
+data_frame <- data.frame(Values = large_data)
+
+# Create an interactive histogram using Plotly
+fig <- plot_ly(data_frame, x = ~Values, type = "histogram", nbinsx = 50) %>%
+  layout(title = "Interactive Histogram of Normally Distributed Data",
+         xaxis = list(title = "Values"),
+         yaxis = list(title = "Frequency"))
+
+# Display the interactive plot
+fig
+```
+
+```{r}
+two_abs_age_lga <- function(lga_1, lga_2){
+  bind_rows(
+    abs_age_lga(lga_1),
+    abs_age_lga(lga_2)
+  )
+}
+
+melb_syd <- two_abs_age_lga("Melbourne (C)", "Sydney (C)")
+
+melb_syd_pyramid <- melb_syd %>%
+  mutate(
+    population = case_when(
+      lga == "Sydney (C)" ~ -population,
+      TRUE ~ population
+    ),
+    lower.age.limit = as_factor(lower.age.limit)
+  )
+
+ggplot(melb_syd_pyramid,
+         aes(x = population,
+             y = lower.age.limit,
+             fill = lga)) +
+    geom_col() 
+```
+## Uni-modality distribution
+
+```{r}
+par(mfrow = c(1, 3))
+
+set.seed(123)
+unimodal_data <- rnorm(1000, mean = 50, sd = 10)
+
+# Plot the histogram
+hist(unimodal_data, 
+     main = "", 
+     xlab = "Values", 
+     col = "lightblue", 
+     border = "black")
+
+
+bimodal_data <- c(rnorm(500, mean = 40, sd = 5), rnorm(500, mean = 60, sd = 5))
+
+hist(multimodal_data, 
+     main = "", 
+     xlab = "Values", 
+     col = "lightcoral", 
+     border = "black")
+
+# Plot the histogram
+hist(bimodal_data, 
+     main = "", 
+     xlab = "Values", 
+     col = "lightgreen", 
+     border = "black")
+
+multimodal_data <- c(rnorm(400, mean = 30, sd = 5), 
+                     rnorm(400, mean = 50, sd = 5), 
+                     rnorm(400, mean = 70, sd = 5))
+
+# Plot the histogram
+
+
+```
+## Spatial data
+
+```{r}
+par(mar = c(3, 4, 4, 8))
+
+nc <- st_read(system.file("shape/nc.shp", package = "sf"))
+
+my_palette <- colorRampPalette(c("yellow", "orange", "red"))
+
+n_colors <- 5
+nc$color <- my_palette(n_colors)[cut(nc$AREA, breaks = n_colors)]
+
+# Plot the categorical variable
+plot(nc['AREA'], 
+     main = "Area of Each County in North Carolina",
+     # col = sf.colors(10, categorical = FALSE),
+     col = my_palette(5),
+     border = 'black',
+     axes = TRUE,
+     key.pos = 1)
+
+legend(x = 0.02, y = 0.45,      
+       legend = round(seq(min(nc$AREA), max(nc$AREA), length.out = n_colors), 2), 
+       fill = my_palette(n_colors), 
+       title = "Area",
+       cex = 0.9)
+
+```
+## Spatial data: Council in the city of Dallas
+
+```{r}
+districts = st_read('D:\\Teaching_Clark\\GitRepo\\Spring2025\\geog-247\\docs\\Lectures\\Week03\\Council\\Council_Boundaries.shp')
+
+ggplot(data = districts) +
+  geom_sf(aes(fill = districts$DISTRICT)) +  # Fill based on the categorical variable
+  scale_fill_viridis_d(option = "C") +            # Use a discrete Viridis color palette
+  theme_minimal()+
+  labs(
+    title = "Council in Dallas",
+    fill = districts$DISTRICT
+  )
+```
+## Normal curve
+
+```{r}
+x <- seq(-4, 4, length.out = 1000)
+
+# Calculate the corresponding y values for the normal distribution
+y <- dnorm(x, mean = 0, sd = 1)
+
+y1 <- dnorm(x, mean = 0, sd = 1.5)
+
+# Plot the normal distribution curve
+plot(x, y, type = "l", lwd = 2, col = "blue",
+     main = "",
+     xlab = "Value", ylab = "Probability Density")
+
+lines(x, y1 , lwd = 2, col = "green")
+
+```
+
+```{r}
+data("midwest")
+```
+
+## ScatterplotMatrix
+
+```{r}
+scatterplotMatrix(~ poptotal + popdensity+percollege+popblack+percadultpoverty,  data = midwest, smooth = list(span = 0.45, lty.smooth = 1, col.smooth = 'red', col.var = 'red'), regLine = list(col = 'green'))
+```
+
+
+```{r}
+colnames(midwest)
+```
+
+## Standardization
+```{r}
+x <- seq(-4, 4, length.out = 1000)
+
+# Calculate the corresponding y values for the normal distribution
+y <- dnorm(x, mean = 0, sd = 1)
+
+plot(x, y, type = "l", lwd = 2, col = "blue",
+     main = "",
+     xlab = "z score", ylab = "Probability Density")
+
+abline(v = 0, col = 'black', lty = 2, lwd = 3)
+```
+
+```{r}
+par(mfrow = c(2, 1))
+par(mar = c(1, 4, 4, 8))
+
+data("airquality")
+
+# Plot a histogram of the Temp variable
+hist(airquality$Temp,
+     main = "Histogram of Temperature (Temp)",
+     xlab = "Temperature (°F)",
+     col = "lightblue",
+     border = "black",
+     breaks = 10,
+     freq = FALSE)
+abline(v = mean(airquality$Temp, na.rm = TRUE), lty = 2, lwd = 3)
+# Add a normal distribution curve
+curve(dnorm(x, mean = mean(airquality$Temp, na.rm = TRUE),
+            sd = sd(airquality$Temp, na.rm = TRUE)),
+      add = TRUE, col = "red", lwd = 2)
+
+temp_standardized <- scale(airquality$Temp)
+
+hist(temp_standardized,
+     main = "Standardized Temperature (Normal Curve)",
+     xlab = "Standardized Temp (Z-scores)",
+     col = "lightblue",
+     border = "black",
+     breaks = 10,
+     probability = TRUE)
+abline(v = 0 ,lty = 2,lwd = 3)
+
+curve(dnorm(x, mean = 0, sd = 1), add = TRUE, col = "red", lwd = 2)
+```
+
+
+```{r}
+x <- seq(-4, 4, length.out = 1000)
+
+# Calculate the corresponding y values for the normal distribution
+y <- dnorm(x, mean = 0, sd = 1)
+
+plot(x, y, type = "l", lwd = 2, col = "blue",
+     main = "",
+     xlab = "z score", ylab = "Probability Density")
+
+abline(v = 0, col = 'black', lty = 2, lwd = 3)
+```
+
+## kurtosis of normal distribution
+
+```{r}
+y <- rnorm(100, mean = 0, sd = 1)
+
+hist(y, breaks = 10, xlab = 'x', main = NULL, freq = FALSE)
+
+text(-2, 0.3, labels = paste('kurtosis=', round(kurtosis(y),3)))
+lines(density(y), col = "red", lwd = 2)
+
+
+```
+## Leptokurtic & platykurtic
+
+```{r}
+library(e1071)
+
+# Create a distribution with high kurtosis (~5)
+set.seed(123)
+data_high_kurtosis <- c(rnorm(1000, mean = 0, sd = 2), rnorm(200, mean = 0, sd = 0.15))
+
+# Create a distribution with low kurtosis (~1)
+set.seed(123)
+data_low_kurtosis <- runif(1200, min = -3, max = 3)
+
+# Plot the high kurtosis distribution
+hist(data_high_kurtosis, breaks = 30, probability = TRUE, 
+     main = paste0("Histogram with High Kurtosis","( ",round(kurtosis(data_high_kurtosis),3)," )"), col = "lightblue", border = "black")
+
+lines(density(data_high_kurtosis), col = "red", lwd = 2)
+
+
+# Calculate and print kurtosis
+cat("Kurtosis for High Kurtosis Distribution:", kurtosis(data_high_kurtosis), "\n")
+
+# Plot the low kurtosis distribution
+hist(data_low_kurtosis, breaks = 30, probability = TRUE, 
+     main = paste0("Histogram with Low Kurtosis","( ",round(kurtosis(data_low_kurtosis),3)," )"), col = "lightblue", border = "black")
+text(-2, 0.3, labels = paste('kurtosis=', round(kurtosis(data_low_kurtosis),3)))
+
+lines(density(data_low_kurtosis), col = "red", lwd = 2)
+
+# Calculate and print kurtosis
+cat("Kurtosis for Low Kurtosis Distribution:", kurtosis(data_low_kurtosis), "\n")
+```
+## Normalization
+
+```{r}
+hist(airquality$Ozone, col = 'lightblue', xlab = 'Ozone',main = 'Ozone', breaks = 10)
+
+values = na.omit(airquality$Ozone)
+newozone = (values - min(values)) / (max(values) - min(values))
+
+hist(newozone, col = 'lightblue', xlab = 'Ozone', main = 'Normalization of Ozone', breaks = 10)
+```
+
+
+
+
+
+
+
