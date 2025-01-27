@@ -163,6 +163,7 @@ fig <- plot_ly(data_frame, x = ~Values, type = "histogram", nbinsx = 50) %>%
 fig
 ```
 
+## Side by side histogram
 ```{r}
 two_abs_age_lga <- function(lga_1, lga_2){
   bind_rows(

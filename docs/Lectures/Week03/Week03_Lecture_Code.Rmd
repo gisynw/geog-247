@@ -57,6 +57,10 @@ qqline(na.omit(airquality$Ozone), col = 'blue')
 ## ScatterplotMatrix
 
 ```{r}
+library(tidyverse)
+
+data("midwest")
+
 scatterplotMatrix(~ poptotal + popdensity+percollege+popblack+percadultpoverty,  data = midwest, smooth = list(span = 0.45, lty.smooth = 1, col.smooth = 'red', col.var = 'red'), regLine = list(col = 'green'))
 ```
 
