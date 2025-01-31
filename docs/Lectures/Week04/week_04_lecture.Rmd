@@ -3,47 +3,38 @@ title: "Week_lecture"
 output: html_document
 date: "2025-01-20"
 ---
+```{r}
+data('advertising')
+```
 
 ```{r}
-# Set seed for reproducibility
-set.seed(42)
+bivariate_model = lm(sales~TV, data = advertising)
 
-# Number of observations
-n <- 50
+plot(bivariate_model)
 
-# Case 1: Narrow spread of X
-X_narrow <- seq(5, 6, length.out = n)  # X values between 5 and 6
-Y_narrow <- 2 * X_narrow + rnorm(n, mean = 0, sd = 1)  # Y = 2X + noise
-
-# Case 2: Wide spread of X
-X_wide <- seq(1, 10, length.out = n)  # X values between 1 and 10
-Y_wide <- 2 * X_wide + rnorm(n, mean = 0, sd = 1)  # Y = 2X + noise
-
-# Fit regression models
-model_narrow <- lm(Y_narrow ~ X_narrow)
-model_wide <- lm(Y_wide ~ X_wide)
-
-# Extract standard errors of the slope
-se_slope_narrow <- summary(model_narrow)$coefficients[2, 2]
-se_slope_wide <- summary(model_wide)$coefficients[2, 2]
-
-# Print results
-cat("Standard Error of Slope (Narrow Spread):", se_slope_narrow, "\n")
-cat("Standard Error of Slope (Wide Spread):", se_slope_wide, "\n")
-
-# Plot the data and regression lines
-par(mfrow = c(1, 2))  # Set up side-by-side plots
-
-# Narrow Spread
-plot(X_narrow, Y_narrow, main = "Narrow Spread of X", xlab = "X", ylab = "Y", pch = 16, col = "blue")
-abline(model_narrow, col = "red", lwd = 2)
-
-# Wide Spread
-plot(X_wide, Y_wide, main = "Wide Spread of X", xlab = "X", ylab = "Y", pch = 16, col = "blue")
-abline(model_wide, col = "red", lwd = 2)
-
-# Reset plot layout
-par(mfrow = c(1, 1))
-
+summary(bivariate_model)
 ```
+```{r}
+plot(advertising$TV, advertising$sales, 
+     main = "Regression of Sales on TV Advertising",
+     xlab = "TV Advertising Budget", 
+     ylab = "Sales",
+     pch = 16, col = "blue")
+
+# Add regression line
+abline(bivariate_model, col = "red", lwd = 2)
+```
+```{r}
+library(AER) 
+
+data('CPS1988')
+
+rst = summary(powerTransform(CPS1988$wage~1))
+print(rst)
+```
+```{r}
+hist(CPS1988$education, breaks = 50)
+```
+
+
 
