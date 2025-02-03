@@ -100,6 +100,7 @@ nav:
       - Week 1 Introduction: "Lectures/Week01/week01_Intro.ipynb"  
       - Week 2 Inferential Statistics: "Lectures/Week02/Week02_InferentialStas.pdf"
       - Week 3 Data Exploration: "Lectures/Week03/Week03_DataExploration.pdf"
+      - Week 4 Bivariate Regression Part 01: "Lectures/Week04/Week04_BivariateRegression.pdf"
     - Labs:
       - Practice 01: "Labs/Practice01/Practice01.ipynb"
       - Lab 01: "Labs/Lab01/Lab01geog247_347Spring2025.pdf"
@@ -107,3 +108,4 @@ nav:
       - Week 1 Code: "Demo/Week01_code.ipynb"
       - Week 2 Code: "Demo/Week02_code.ipynb"
       - Week 3 Code: "Demo/Week03_code.ipynb"
+      - Week 4 Code Part 01: "Demo/Week03_code.ipynb"
