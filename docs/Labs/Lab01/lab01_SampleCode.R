@@ -33,7 +33,7 @@ legend("topright",
 
 ##Task 2.a - b
 ??MASS::Boston
-library(MASS)
+library(MASS);library(ggplot2)
 data('Boston')
 ggplot(Boston, aes(x = rm, y = medv, colour = indus)) +
   geom_point()
