@@ -54,7 +54,7 @@ car::scatterplot(log(infantMortality)~log(ppgdp), data = new_un,xlab = 'Gross Do
                  ylab = 'Infant Mortality Rate (per 1000 births)', 
                  regLine = list(col = 'darkgreen'), 
                  smooth = list(col.smooth = "red"))
- 
+
 ## Task 2.g
 log_lm_model = lm(log(infantMortality)~log(ppgdp), data = new_un)
 summary(log_lm_model)
