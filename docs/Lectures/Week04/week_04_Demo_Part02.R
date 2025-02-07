@@ -4,7 +4,6 @@ data("Boston")
 getwd()
 
 ####################################
-                                  
 # plot x and y                    
 ####################################
 plot(Boston$dis, Boston$medv,xlab = "Distance", 
