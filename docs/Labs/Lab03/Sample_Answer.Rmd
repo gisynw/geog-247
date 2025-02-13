@@ -1,0 +1,268 @@
+---
+title: "Lab 9 KEY: Multiple linear regression"
+subtitle: "For instructor use only"
+output: github_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, results = FALSE, fig.show = "hide", message = FALSE)
+```
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(GGally)
+library(broom)
+options(scipen = 999)
+```
+```{r}
+evals = read.csv('evals.csv')
+```
+
+```{r}
+glimpse(evals)
+```
+
+1.  Is this an observational study or an experiment?
+    The original research question posed in the paper is whether beauty leads directly to the differences in course evaluations.
+    Given the study design, is it possible to answer this question as it is phrased?
+    If not, rephrase the question.
+
+This is an observational study. This question can not be answered as phrased, but we can answer the question of whether there is an association between course evaluations and beauty.
+
+
+2.  Describe the distribution of `score`.
+    Is the distribution skewed?
+    What does that tell you about how students rate courses?
+    Is this what you expected to see?
+    Why, or why not?
+
+```{r}
+evals %>% 
+  ggplot(aes(x = score))+
+  geom_histogram()
+```
+The distribution is skew left. Since scores are on a 1-5 scale, this indicates that students are very likely to rate instructors highly on average. (Students may respond differently on whether they find this surprising.)
+
+3.  Excluding `score`, select two other variables and describe their relationship with each other using an appropriate visualization.
+
+Answers will vary.
+
+```{r scatter-score-bty_avg}
+ggplot(data = evals, aes(x = bty_avg, y = score)) +
+  geom_point()
+```
+
+4.  Re-plot the scatterplot, but this time use `geom_jitter` as your layer. What was misleading about the initial scatterplot?
+
+```{r scatter-score-bty_avg-jitter}
+ggplot(data = evals, aes(x = bty_avg, y = score)) +
+  geom_jitter()
+```
+
+Many points overlapped, so it was difficult to see a trend.
+
+5.  Let's see if the apparent trend in the plot is something more than natural variation. Fit a linear model called `m_bty` to predict average professor score by average beauty rating. Write out the equation for the linear model and interpret the slope. Is average beauty score a statistically significant predictor? Does it appear to be a practically significant predictor?
+
+```{r}
+m_bty <- 
+  evals %>% 
+  lm(score~bty_avg, data=.)
+
+summary(m_bty)
+```
+The model is:
+
+$$
+\widehat{score} = 3.88034 + 0.06664*bty\_avg
+$$
+The slope of 0.06664 indicates that an increase in beauty score by 1 corresponds to an increase in evaluation score by 0.06664. While this is statistically significant, it does not seem to be practically significant.
+
+
+Add the line of the bet fit model to your plot using the following:
+
+```{r scatter-score-bty_avg-line-se}
+ggplot(data = evals, aes(x = bty_avg, y = score)) +
+  geom_jitter() +
+  geom_smooth(method = "lm")
+```
+
+The blue line is the model.
+The shaded gray area around the line tells you about the variability you might expect in your predictions.
+To turn that off, use `se = FALSE`.
+
+```{r scatter-score-bty_avg-line}
+ggplot(data = evals, aes(x = bty_avg, y = score)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+6.  Use residual plots to evaluate whether the conditions of least squares regression are reasonable. Provide plots and comments for each one (see the Simple Regression Lab for a reminder of how to make these).
+
+```{r}
+evals_aug1 <- augment(m_bty)
+
+evals_aug1 %>% 
+  ggplot(aes(x = .resid))+
+  geom_histogram()
+
+evals_aug1 %>% 
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point()
+
+```
+The histogram of residuals is concerning in its lack of normality, but the plot of residuals vs fitted suggests no patterns.
+
+```{r scatter-score-bty_avg_pic-color}
+m_bty_gen <- lm(score ~ bty_avg + gender, data = evals)
+tidy(m_bty_gen)
+```
+
+7.  p-values and parameter estimates should only be trusted if the conditions for the regression are reasonable.
+    Verify that the conditions for this model are reasonable using diagnostic plots.
+    
+```{r}
+evals_aug2 <- augment(m_bty_gen)
+
+evals_aug2 %>% 
+  ggplot(aes(.resid))+
+  geom_histogram()
+
+evals_aug2 %>% 
+  ggplot(aes(x = .fitted, y = .resid))+
+  geom_point()
+```
+While the normality of residuals is concerning, the residuals vs fitted plot seems reasonable.
+
+
+8.  Is `bty_avg` still a significant predictor of `score`?
+    Has the addition of `gender` to the model changed the parameter estimate for `bty_avg`?
+
+bty_avg is still a significant predictor, and the coefficient is now greater than it was before `gender` was included as a variable.
+
+$$
+  \begin{aligned}
+\widehat{score} &= \hat{\beta}_0 + \hat{\beta}_1 \times bty\_avg + \hat{\beta}_2 \times (0) \\
+&= \hat{\beta}_0 + \hat{\beta}_1 \times bty\_avg\end{aligned}
+$$
+
+9.  What is the equation of the line corresponding to male professors? (*Hint:* For male professors, the parameter estimate is multiplied by 1.) For two professors who received the same beauty rating, which gender tends to have the higher course evaluation score?
+
+$$
+\widehat{score} = 3.919728+0.07415537*bty\_avg
+$$
+For a given value of beauty, the male will on avergae have a higher course evaluation score.
+
+
+10. Create a new model called `m_bty_rank` with `gender` removed and `rank` added in. How does R appear to handle categorical variables that have more than two levels? Note that the rank variable has three levels: `teaching`, `tenure track`, `tenured`.
+
+```{r}
+m_bty_rank <- evals %>% 
+  lm(score ~ bty_avg+rank, data=.)
+tidy(m_bty_rank)
+```
+
+R uses teaching as a baseline, and compares tenure track and tensured to this baseline level.
+
+11. Which variable would you expect to have the highest p-value in this model? Why? *Hint:* Think about which variable would you expect to not have any association with the professor score.
+
+Answers will vary.
+
+Let's run the model...
+
+```{r m_full, tidy = FALSE}
+m_full <- lm(score ~ rank + gender + ethnicity + language + age + cls_perc_eval +
+             cls_students + cls_level + cls_profs + cls_credits + bty_avg, data = evals)
+tidy(m_full)
+```
+
+12. Check your suspicions from the previous exercise.
+    Include the model output in your response.
+
+Answers will vary.
+
+13. Interpret the coefficient associated with the ethnicity variable.
+
+The coefficient of `ethnicitynot minority` is 0.1869649363, indicating that an instructor who is not a minority will have a course evaluation score on average 0.1869649363 higher than a minority instructor, all other variables being held constant.
+
+14. Drop one variable at a time and peek at the adjusted $R^2$.
+    Removing which variable increases adjusted $R^2$ the most?
+    Drop the variable with the highest p-value and re-fit the model.
+    Did the coefficients and significance of the other explanatory variables change with this variable removed?
+    (One of the things that makes multiple regression interesting is that coefficient estimates depend on the other variables that are included in the model.) If not, what does this say about whether or not the dropped variable was collinear with the other explanatory variables?
+
+```{r}
+lm(score ~ rank + gender + ethnicity + language + age + cls_perc_eval +
+             cls_students + cls_level + cls_credits + bty_avg, data = evals) %>% 
+  glance()
+```
+
+Dropping `cls_profs` improves the adjusted $R^2$ the most, raising it to 0.1431.
+
+Since `cls_profs` had the highest p-value, we remove it.
+
+```{r}
+lm(score ~ rank + gender + ethnicity + language + age + cls_perc_eval +
+             + cls_students + cls_level + cls_credits + bty_avg, data = evals) %>% 
+  tidy()
+```
+
+Removing `cls_profs` did not change the significance of any of the variables, indicating that its predictive ability is largely redundant with the other predictors.
+
+
+15. Using backward-selection and adjusted $R^2$ as the selection criterion, determine the best model.
+    You do not need to show all steps in your answer, just the output for the final model.
+    Also, write out the linear model for predicting score based on the final model you settle on.
+
+```{r}
+back_model <- lm(score ~ gender + ethnicity + cls_perc_eval +
+             cls_credits + bty_avg, data = evals)
+tidy(back_model)
+```
+
+The linear model is:
+
+$$
+\widehat{score} = 3.137380691 + 0.157831896*gendermale + 0.233794192*ethnicitynot minority + 0.005207938*cls\_perc\_eval + 0.541067121*cls_creditsone credit+0.073643606*bty\_avg
+$$
+
+16. Verify that the conditions for this model are reasonable using diagnostic plots.
+
+```{r}
+back_aug <- augment(back_model)
+
+back_aug %>% 
+  ggplot(aes(x = .resid))+
+  geom_histogram()
+
+back_aug %>% 
+  ggplot(aes(x = .fitted, y = .resid))+
+  geom_point()
+
+```
+
+There is perhaps some concern about the normality of the residuals, which is likely a result of the high average scores, and the cutoff at 5.
+
+17. The original paper describes how these data were gathered by taking a sample of professors from the University of Texas at Austin and including all courses that they have taught.
+    Considering that each row represents a course, could this new information have an impact on any of the conditions of linear regression?
+    
+Yes - we should be concerned about independence as courses taught by the same instructor are likely to be correlated.
+
+18. Based on your final model, describe the characteristics of a professor and course at University of Texas at Austin that would be associated with a high evaluation score.
+
+```{r}
+tidy(back_model)
+```
+
+A highly rated professor and course would be taught by a male, attractive, non-minority professor, who is teaching a one-credit course where a high percent of students filled out the evaluation.
+
+19. Would you be comfortable generalizing your conclusions to apply to professors generally (at any university)?
+    Why or why not?
+
+Not necessarily - there may be regional or institutional differences among professors and/or students, and the lack of independence may cause some concern about our results.
+
+## References
+
+------------------------------------------------------------------------
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png){style="border-width:0"}</a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
