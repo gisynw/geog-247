@@ -1,0 +1,4 @@
+library(survey)
+
+data('election')
+
