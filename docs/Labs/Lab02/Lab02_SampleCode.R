@@ -30,16 +30,16 @@ summary(p1)
 ##Task 2.d
 ## examine the data distribution for ppgdp based on three different value of lambda
 
-lambda_0 = car::bcPower(new_un$ppgdp, lambda=1)
-lambda_optimal = car::bcPower(new_un$ppgdp, lambda=0.026)
+lambda_1 = car::bcPower(new_un$ppgdp, lambda=1)
+lambda_optimal = car::bcPower(new_un$ppgdp, lambda=0.019)
 lambda_negative = car::bcPower(new_un$ppgdp, lambda=-1)
 
 par(mfrow = c(1,3))
-hist(lambda_0,breaks = 12,main = 'lambda = 1',xlab = 'x')
-hist(lambda_optimal,breaks = 12,main = 'lambda = 0.026',xlab = 'x')
+hist(lambda_1,breaks = 12,main = 'lambda = 1',xlab = 'x')
+hist(lambda_optimal,breaks = 12,main = 'lambda = 0.019',xlab = 'x')
 hist(lambda_negative,breaks = 12,main = 'lambda = -1',xlab = 'x')
 
-shapiro.test(lambda_0)
+shapiro.test(lambda_1)
 shapiro.test(lambda_optimal)
 shapiro.test(lambda_negative)
 
