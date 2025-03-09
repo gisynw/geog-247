@@ -1,5 +1,7 @@
 library(carData);library(car);library(regclass);library(openintro);library(MASS)
 
+setwd('D:\\Teaching_Clark\\GitRepo\\Spring2025\\geog-247-statistics\\docs\\Labs\\Lab03')
+
 evals = read.csv('evals.csv')
 
 ##Task 1
@@ -40,26 +42,33 @@ summary(m_full)
 #provide interpretation for the coefficient associated with the ethnicity variable
 
 #d
+# d best subset model
+best_subset <- regsubsets(score ~ rank + ethnicity + gender + language + age + cls_perc_eval
+                          + cls_students + cls_level + cls_profs + cls_credits + bty_avg
+                          + pic_outfit + pic_color, data = evals, nbest = 1, nvmax = 13)
+summary_best <- summary(best_subset)
+best_model_index <- which.min(summary_best$cp)
+best_variables <- names(which(summary_best$which[best_model_index,]))
+cat("Best model has", best_model_index, "predictors with lowest C_P:", max(summary_best$cp), "\n")
+
 #d.backward model
-backward_model <- stepAIC(m_full, direction = "backward")
-summary(backward_model)
+# Perform backward elimination using AIC
+full_model = lm(score ~ rank + ethnicity + gender + language + age + cls_perc_eval
+                + cls_students + cls_level + cls_profs + cls_credits + bty_avg
+                + pic_outfit + pic_color, data = evals)
+backward_model <- step(full_model,direction = "backward")
+summary_backward <- summary(backward_model)
 
 #d.forward model
-# Start with a null model (intercept only)
-null_model = lm(score ~ 1, data = evals)
-forward_model <- stepAIC(null_model, direction = "forward", 
-                         scope = list(upper = ~rank + ethnicity + gender + language + age + cls_perc_eval
-                                      + cls_students + cls_level + cls_profs + cls_credits + bty_avg
-                                      + pic_outfit + pic_color, lower = ~1))
-summary(forward_model)
+forward_model  = regsubsets(score ~ rank + ethnicity + gender + language + age + cls_perc_eval
+                        + cls_students + cls_level + cls_profs + cls_credits + bty_avg
+                        + pic_outfit + pic_color, data = evals, nvmax = 13, method = 'forward')
 
-#d.both model
-# Stepwise selection (both directions)
-both_model <- stepAIC(m_full, direction = "both")
-summary(both_model)
+summary_forward <- summary(forward_model)
+best_model_index <- which.min(summary_forward$cp)
+best_variables <- names(which(summary_forward$which[best_model_index,]))
+cat("Best model has", best_model_index, "predictors with lowest C_P:", max(summary_forward$cp), "\n")
 
-# Compare AIC of all models
-AIC(m_full, backward_model, forward_model,both_model)
-
-summary(backward_model)
-
+# final model
+final_model = lm(score ~  ethnicity + gender + language + age + cls_perc_eval+  cls_credits + bty_avg+ pic_outfit + pic_color, data = evals)
+summary(final_model)
