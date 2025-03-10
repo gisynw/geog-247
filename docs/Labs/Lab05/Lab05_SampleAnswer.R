@@ -1,8 +1,8 @@
 library(sf)
 
-path = 'D:\\teaching_Clark\\GitRepo\\Spring2025\\geog-247-statistics\\docs\\Labs\\Lab05'
-setwd(path)
-list.files(path)
+# path = 'E:\\teaching_Clark\\GitRepo\\Spring2025\\geog-247-statistics\\docs\\Labs\\Lab05'
+# setwd(path)
+# list.files(path)
 
 ##Task 1.a
 df = st_read('data_accident\\Accident_data.shp')
