@@ -1,0 +1,96 @@
+---
+title: "Tree-based"
+author: "Yanan Wu"
+date: "2025-03-15"
+output: html_document
+---
+
+
+```{r}
+library(ISLR);library(ggplot2)
+```
+
+```{r}
+data('Hitters')
+```
+
+```{r}
+Hitters$salary = log(Hitters$Salary)
+
+new_Hitters = na.omit(Hitters)
+```
+
+```{r}
+ggplot(new_Hitters, aes(x = Years, y = Hits, color = salary)) +
+  geom_point() +
+  # geom_vline(xintercept = 4.5, linetype = "dashed", color = "black", size = 1) + # Vertical line
+  # geom_hline(yintercept = 117.5, linetype = "dashed", color = "black", size = 1) +
+  scale_color_viridis_c(direction = -1) +  # Use a color gradient similar to the provided image
+  labs(x = "Years", y = "Hits", title = "Years vs Hits in Hitters Dataset") +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(new_Hitters, aes(x = Years, y = Hits, color = Salary)) +
+  geom_point(size = 2) +
+  scale_color_gradient(low = "blue", mid = "green", high = "red",
+                       midpoint = median(new_Hitters$Salary, na.rm = TRUE)) + 
+  labs(x = "Years", y = "Hits", color = "Salary", 
+       title = "Years vs Hits in Hitters Dataset") +
+  theme_minimal()
+
+```
+## Fitting regression Trees
+
+```{r}
+colnames(new_Hitters)
+```
+
+```{r}
+library(MASS);library(tree)
+
+set.seed(1)
+
+sub_data = new_Hitters[,c('salary', 'Years', 'RBI', 'PutOuts', 'Runs', 'Walks', 'RBI', 'Hits')]
+
+train = sample(1:nrow(sub_data), nrow(sub_data)/2)
+tree.sub_data = tree(salary~.,sub_data, subset = train)
+
+summary(tree.sub_data)
+```
+```{r}
+plot(tree.sub_data)
+text(tree.sub_data, pretty =0)
+```
+
+## Prune tree
+```{r}
+set.seed(10)
+cv.prune=cv.tree(tree.sub_data, K = 5)
+plot(cv.prune$size ,cv.prune$dev ,type='b', xlab = 'Mean Square Error', ylab = 'Tree Size')
+```
+```{r}
+print(cv.prune)  # Check cross-validation results
+```
+
+```{r}
+prune.hitter=prune.tree(tree.sub_data ,best=9)
+plot(prune.hitter)
+text(prune.hitter , pretty =0)
+```
+## make prediction
+
+```{r}
+yhat=predict (tree.sub_data ,newdata=sub_data[-train ,])
+hitter.test=sub_data[-train ,"salary"]
+plot(yhat ,hitter.test)
+abline (0,1)
+mean((yhat -hitter.test)^2)
+
+```
+
+
+
+
+
