@@ -1,6 +1,6 @@
 library(carData);library(car);library(regclass);library(openintro);library(MASS)
 
-setwd('D:\\Teaching_Clark\\GitRepo\\Spring2025\\geog-247-statistics\\docs\\Labs\\Lab03')
+setwd('E:\\Clark\\Spring2025\\Github_Courses\\geog-247_Statistics\\docs\\Labs\\Lab03')
 
 evals = read.csv('evals.csv')
 
@@ -63,7 +63,7 @@ summary_backward <- summary(backward_model)
 forward_model  = regsubsets(score ~ rank + ethnicity + gender + language + age + cls_perc_eval
                         + cls_students + cls_level + cls_profs + cls_credits + bty_avg
                         + pic_outfit + pic_color, data = evals, nvmax = 13, method = 'forward')
-
+AIC(forward_model)
 summary_forward <- summary(forward_model)
 best_model_index <- which.min(summary_forward$cp)
 best_variables <- names(which(summary_forward$which[best_model_index,]))
