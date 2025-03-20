@@ -28,7 +28,7 @@ summary(tree.carseats_train)
 
 ##cross validation
 set.seed(3)
-cv.carseats =cv.tree(tree.carseats_train,FUN = prune.misclass, K =5)
+cv.carseats =cv.tree(tree.carseats_train,FUN = prune.misclass, K =3)
 names(cv.carseats)
 cv.carseats
 
@@ -37,7 +37,7 @@ par(mfrow =c(1 ,1))
 plot(cv.carseats$size ,cv.carseats$dev , type ="b")
 
 ## prune tree based on the best tree size
-prune.carseats = prune.misclass(tree.carseats_train, best =3)
+prune.carseats = prune.misclass(tree.carseats_train, best =4)
 plot( prune.carseats)
 text( prune.carseats , pretty =0)
 
@@ -45,5 +45,5 @@ text( prune.carseats , pretty =0)
 tree.pred = predict(prune.carseats, Carseats.test ,type ="class")
 table (tree.pred ,test_observed)
 
-tree.pred = predict(tree.carseats_train, Carseats.test ,type ="class")
-table (tree.pred ,test_observed)
+tree.pred02 = predict(tree.carseats_train, Carseats.test ,type ="class")
+table (tree.pred02 ,test_observed)
