@@ -1,0 +1,49 @@
+library(tree);library(ISLR)
+data("Carseats")
+
+##group the Sals into Yes and No
+High= ifelse(Carseats$Sales<=8 ," No"," Yes ")
+High = as.factor(High)
+Carseats = data.frame (Carseats , High)
+## tree based classification
+tree.carseats = tree(High~.-Sales, Carseats)
+summary(tree.carseats)
+
+## classificiation error rate
+node_probs <- tree.carseats$frame$yprob
+error_rate = 1 - apply(node_probs, 1, max)
+
+## plot trees
+plot(tree.carseats )
+text(tree.carseats ,pretty =0)
+colnames(Carseats)
+set.seed(2)
+##divide data into testing and training data
+train = sample(1: nrow(Carseats), 200)
+Carseats.test= Carseats[-train ,]
+test_observed =High[-train ]
+##create the decision tree
+tree.carseats_train =tree(High~CompPrice+Income+Advertising+Population+Price+ShelveLoc+Age+Education+Urban+US, Carseats, subset =train)
+summary(tree.carseats_train)
+
+##cross validation
+set.seed(3)
+cv.carseats =cv.tree(tree.carseats_train,FUN = prune.misclass, K =5)
+names(cv.carseats)
+cv.carseats
+
+## plot the deviance and tree size
+par(mfrow =c(1 ,1))
+plot(cv.carseats$size ,cv.carseats$dev , type ="b")
+
+## prune tree based on the best tree size
+prune.carseats = prune.misclass(tree.carseats_train, best =3)
+plot( prune.carseats)
+text( prune.carseats , pretty =0)
+
+##
+tree.pred = predict(prune.carseats, Carseats.test ,type ="class")
+table (tree.pred ,test_observed)
+
+tree.pred = predict(tree.carseats_train, Carseats.test ,type ="class")
+table (tree.pred ,test_observed)
