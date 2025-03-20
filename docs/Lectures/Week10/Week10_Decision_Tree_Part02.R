@@ -2,7 +2,7 @@ library(tree);library(ISLR)
 data("Carseats")
 
 ##group the Sals into Yes and No
-High= ifelse(Carseats$Sales<=8 ," No"," Yes ")
+High= ifelse(Carseats$Sales<=8 ,"No"," Yes ")
 High = as.factor(High)
 Carseats = data.frame (Carseats , High)
 ## tree based classification
@@ -37,7 +37,7 @@ par(mfrow =c(1 ,1))
 plot(cv.carseats$size ,cv.carseats$dev , type ="b")
 
 ## prune tree based on the best tree size
-prune.carseats = prune.misclass(tree.carseats_train, best =4)
+prune.carseats = prune.misclass(tree.carseats_train, best =8)
 plot( prune.carseats)
 text( prune.carseats , pretty =0)
 
@@ -47,3 +47,4 @@ table (tree.pred ,test_observed)
 
 tree.pred02 = predict(tree.carseats_train, Carseats.test ,type ="class")
 table (tree.pred02 ,test_observed)
+
