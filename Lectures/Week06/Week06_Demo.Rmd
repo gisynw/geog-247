@@ -1,0 +1,193 @@
+---
+title: "StepwiseRegression"
+author: "Yanan Wu"
+date: "2025-02-15"
+output: html_document
+---
+
+```{r}
+library(MASS)
+```
+
+```{r}
+data('Boston')
+```
+
+## Best subset selection
+
+```{r}
+# Load required packages
+library(MASS)    # For the Boston dataset
+library(leaps)   # For best subset selection
+
+# Load the Boston housing dataset
+data(Boston)
+
+# Best subset selection
+best_subset <- regsubsets(medv ~ ., data = Boston, nbest = 1, nvmax = 13)
+
+# Summary of results
+summary_best <- summary(best_subset)
+
+# Print model details
+print(summary_best)
+
+```
+### Best model based on C_P (AIC)
+
+```{r}
+# Find the best model based on C_P (AIC)
+best_model_index <- which.min(summary_best$cp)
+
+best_variables <- names(which(summary_best$which[best_model_index,]))
+print(best_variables)
+cat("Best model has", best_model_index, "predictors with lowest C_P:", max(summary_best$cp), "\n")
+
+# Plot adjusted R-squared for different models
+plot(summary_best$cp, type = "b", pch = 19, col = "blue",
+     xlab = "Number of Predictors", ylab = "C_P",
+     main = "predictors with lowest C_P")
+
+# Add a point for the best model
+points(best_model_index, min(summary_best$cp), col = "red", pch = 19, cex = 1.5)
+```
+### Best model based on BIC
+
+```{r}
+# Find the best model based on BIC
+best_model_index <- which.min(summary_best$bic)
+
+best_variables <- names(which(summary_best$which[best_model_index,]))
+print(best_variables)
+cat("Best model has", best_model_index, "predictors with lowest BIC:", max(summary_best$bic), "\n")
+
+# Plot adjusted R-squared for different models
+plot(summary_best$bic, type = "b", pch = 19, col = "blue",
+     xlab = "Number of Predictors", ylab = "BIC",
+     main = "predictors with lowest BIC")
+
+# Add a point for the best model
+points(best_model_index, min(summary_best$bic), col = "red", pch = 19, cex = 1.5)
+```
+### Best model based on R-squared
+
+```{r}
+# Find the best model based on adjusted R-squared
+best_model_index <- which.max(summary_best$adjr2)
+
+best_variables <- names(which(summary_best$which[best_model_index,]))
+print(best_variables)
+cat("Best model has", best_model_index, "predictors with highest adjusted R-squared:", max(summary_best$adjr2), "\n")
+
+# Plot adjusted R-squared for different models
+plot(summary_best$adjr2, type = "b", pch = 19, col = "blue",
+     xlab = "Number of Predictors", ylab = "Adjusted R-Squared",
+     main = "Best Subset Selection - Adjusted R-Squared")
+
+# Add a point for the best model
+points(best_model_index, max(summary_best$adjr2), col = "red", pch = 19, cex = 1.5)
+
+coef(best_subset, 11)
+```
+
+## Forward Selection
+
+```{r}
+regfit_fwd = regsubsets(medv~., data = Boston, nvmax = 13, method = 'forward')
+
+summary_regfit_fwd = summary(regfit_fwd)
+summary_regfit_fwd
+```
+
+```{r}
+# Find the best model based on adjusted R-squared
+best_model_index <- which.max(summary_regfit_fwd$adjr2)
+
+best_variables <- names(which(summary_regfit_fwd$which[best_model_index,]))
+print(best_variables)
+cat("Best model has", best_model_index, "predictors with highest adjusted R-squared:", max(summary_regfit_fwd$adjr2), "\n")
+
+# Plot adjusted R-squared for different models
+plot(summary_regfit_fwd$adjr2, type = "b", pch = 19, col = "blue",
+     xlab = "Number of Predictors", ylab = "Adjusted R-Squared",
+     main = "Forward Selection - Adjusted R-Squared")
+
+# Add a point for the best model
+points(best_model_index, max(summary_regfit_fwd$adjr2), col = "red", pch = 19, cex = 1.5)
+```
+
+## Backward selection
+
+```{r}
+full_model <- lm(medv ~ ., data = Boston)
+
+# Perform backward elimination using AIC
+backward_model <- step(full_model, direction = "backward")
+
+# Print final model summary
+summary(backward_model)
+```
+
+
+## Computation Complexity 
+
+```{r}
+# Define the number of predictors from 1 to 20
+num_predictors <- 1:20
+
+# Compute total models for each number of predictors (2^p)
+total_models <- 2^num_predictors
+
+forward = 1+(num_predictors(num_predictors+1))/2
+# Create a data frame for visualization
+model_df <- data.frame(Num_Predictors = num_predictors, Total_Models = total_models, forward = forward)
+
+options(scipen = 999)
+
+# Print the table
+print(model_df)
+
+# Plot the growth of models
+plot(num_predictors, total_models, type = "b", pch = 19, col = "blue",
+     xlab = "Number of Predictors (p)", ylab = "Total Models (2^p)",
+     main = "Growth of Models in Best Subset Selection", log = "y")
+
+# Highlight extreme points
+points(20, 2^20, col = "red", pch = 19, cex = 1.5)
+text(20, 2^20, labels = paste0("2^20 = ", format(2^20, scientific = FALSE)), pos = 3, col = "red")
+
+```
+
+```{r}
+# Define the number of predictors from 1 to 20
+num_predictors <- 1:20
+
+# Compute total models for Best Subset Selection (2^p)
+total_models <- 2^num_predictors
+
+# Compute total models for Forward Selection (1 + p(p+1)/2)
+forward_models <- 1 + (num_predictors * (num_predictors + 1)) / 2
+
+# Create a data frame for visualization
+model_df <- data.frame(Num_Predictors = num_predictors, 
+                       Total_Models = total_models, 
+                       Forward_Models = forward_models)
+
+options(scipen = 999)
+
+# Print the table
+print(model_df)
+
+# Plot Best Subset Selection (Exponential Growth)
+plot(num_predictors, total_models, type = "b", pch = 19, col = "blue",
+     xlab = "Number of Predictors (p)", ylab = "Total Models",
+     main = "Growth of Models: Best Subset vs. Forward Selection", log = "y")
+
+# Add Forward Selection line (Polynomial Growth)
+lines(num_predictors, forward_models, type = "b", pch = 17, col = "red")
+
+# Add a legend
+legend("topleft", legend = c("Best Subset", "Forward Selection"),
+       col = c("blue", "red"), pch = c(19, 17), lty = 1)
+```
+
