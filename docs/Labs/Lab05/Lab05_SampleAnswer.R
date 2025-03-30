@@ -27,7 +27,7 @@ plot(allEffects(logistic_acc), type="response", ylim=c(0,1), ask=FALSE)
 ## Task 3.a
 logistic_acc02 = glm(accident~hour+F_SYSTEM+intersect+NUM_LANES+Fog,family = binomial(logit),data = df)
 summary(logistic_acc02)
-anova(logistic_acc, logistic_acc02)
+anova(logistic_acc02,logistic_acc)
 
 ## Likelihood ratio test
 lkh = logLik(logistic_acc02)
@@ -58,7 +58,7 @@ plot(low_data$NUM_LANES, low_data$fit, type = "l", col = "blue", lwd = 2, ylim =
 
 # Add shaded confidence intervals for low probability
 polygon(c(low_data$NUM_LANES, rev(low_data$NUM_LANES)), 
-        c(low_data$lower, rev(low_data$upper)), col = rgb(0, 0, 1, 0.2), border = NA)
+        c(    $lower, rev(low_data$upper)), col = rgb(0, 0, 1, 0.2), border = NA)
 
 # Add high probability scenario
 lines(high_data$NUM_LANES, high_data$fit, col = "red", lwd = 2)
