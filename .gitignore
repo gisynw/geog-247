@@ -1,0 +1,5 @@
+*.tif
+*.zip
+*.shp
+*.tif.ovr
+/docs/Lectures/Week10_multiple_bands/landsat.tif
