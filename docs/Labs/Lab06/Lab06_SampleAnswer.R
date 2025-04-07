@@ -4,7 +4,10 @@ library(sf);library(tree)
 accident_data = sf::st_read('data_accident\\Accident_data.shp')
 
 ##Task 1.b
-cols_to_factor <- c("accident", "intersect", "BelowFreez", "Fog", "Thunder","FrozenPrec")
+cols_to_factor <- c("accident", "intersect", "F_SYSTEM","BelowFreez", "Fog", "Thunder","FrozenPrec")
+
+# cols_to_factor <- c("accident", "intersect", "BelowFreez", "Fog", "Thunder","FrozenPrec")
+
 # Convert each column to factor
 accident_data <- within(accident_data, {
   for (col in cols_to_factor) {
@@ -40,6 +43,7 @@ cv.carseats
 ##Task 4
 ## prune the tree
 prune.acc = prune.misclass(tree.acc, best =6)
+prune.acc
 plot( prune.acc)
 text( prune.acc , pretty =0)
 
