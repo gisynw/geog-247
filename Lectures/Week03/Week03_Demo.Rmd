@@ -1,0 +1,66 @@
+---
+title: "Week03_Lecture_Code"
+author: "Yanan Wu"
+date: "2025-01-20"
+output: html_document
+---
+
+## Load packages
+
+```{r}
+library(e1071);library(car)
+```
+
+## Left-Skewness
+
+```{r}
+set.seed(123)  # For reproducibility
+left_skewed_data <- rbeta(1000, shape1 = 5, shape2 = 2)
+
+# Plot a histogram to visualize the left-skewed data
+hist(left_skewed_data, breaks = 20, col = "lightblue", main = "", xlab = "Values", freq = FALSE)
+
+lines(density(left_skewed_data, na.rm = TRUE), 
+      col = "red", 
+      lwd = 2)
+
+abline(v = median(left_skewed_data), col = 'darkblue', lwd = 4, lty = 2)
+abline(v = mean(left_skewed_data), col = 'darkgreen', lwd = 4, lty = 2)
+
+skewness(left_skewed_data)
+```
+
+## Right-skewness
+
+```{r}
+data("airquality")
+hist(na.omit(airquality$Ozone), 
+     main = "", 
+     xlab = "Ozone (ppb)", 
+     col = "lightblue", 
+     border = "black",
+     breaks = 20,
+     freq = FALSE)
+
+lines(density(airquality$Ozone, na.rm = TRUE), 
+      col = "red", 
+      lwd = 2)
+
+abline(v = median(na.omit(airquality$Ozone)), col = 'darkblue', lwd = 4, lty = 2)
+abline(v = mean(na.omit(airquality$Ozone)), col = 'darkgreen', lwd = 4, lty = 2)
+
+skewness(na.omit(airquality$Ozone))
+
+qqnorm(na.omit(airquality$Ozone), ylab = 'Ozone')
+qqline(na.omit(airquality$Ozone), col = 'blue')
+```
+## ScatterplotMatrix
+
+```{r}
+library(tidyverse)
+
+data("midwest")
+
+scatterplotMatrix(~ poptotal + popdensity+percollege+popblack+percadultpoverty,  data = midwest, smooth = list(span = 0.45, lty.smooth = 1, col.smooth = 'red', col.var = 'red'), regLine = list(col = 'green'))
+```
+

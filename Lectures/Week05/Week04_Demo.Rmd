@@ -1,0 +1,45 @@
+---
+title: "Week05"
+author: "Yanan Wu"
+date: "2025-02-12"
+output: html_document
+---
+```{r}
+library(regclass)
+```
+
+```{r}
+loans = read.csv('loans.csv')
+```
+
+
+```{r}
+loans$issue = as.factor(loans$issue)
+loans$bankruptcy = as.factor(loans$bankruptcy)
+loans$income_ver = as.factor(loans$income_ver)
+```
+
+```{r}
+lm_model = lm(interest_rate~bankruptcy, data = loans)
+summary(lm_model)
+```
+
+```{r}
+lm_model_3level = lm(interest_rate~income_ver, data = loans)
+summary(lm_model_3level)
+```
+
+```{r}
+colnames(loans)
+```
+
+```{r}
+multi_model = lm(interest_rate~income_ver+debt_to_income+credit_util+bankruptcy+term+issue + credit_checks,data = loans)
+summary(multi_model)
+```
+
+```{r}
+car::vif(multi_model)
+```
+
+

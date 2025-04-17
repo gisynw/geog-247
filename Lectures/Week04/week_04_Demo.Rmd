@@ -1,0 +1,54 @@
+---
+title: "Week04_Demo"
+author: "Yanan Wu"
+date: "2025-02-03"
+output: html_document
+---
+
+## Read Data
+
+```{r}
+advertising = read.csv('D:\\Spring2025\\geog-247-statistics\\docs\\Lectures\\Week04\\advertising.csv')
+
+plot(advertising$TV, advertising$sales, 
+     main = "Regression of Sales on TV Advertising",
+     xlab = "TV Advertising Budget", 
+     ylab = "Sales",
+     pch = 16, col = "blue")
+
+bivariate_model = lm(sales~TV, data = advertising)
+
+summary(bivariate_model)
+
+# Add regression line
+abline(bivariate_model, col = "red", lwd = 2)
+```
+
+
+## Residual plot based on x variable vs residuals
+
+```{r}
+
+plot(advertising$TV, bivariate_model$residuals, xlab = 'TA Advertising Budget', ylab = 'Residuals')
+trend_line <- lm(bivariate_model$residuals ~ advertising$TV)
+abline(trend_line, col = "darkgreen", lwd = 2)
+
+```
+
+## Residual plot based on x variable vs fitted value
+
+```{r}
+
+plot(bivariate_model$fitted.values, bivariate_model$residuals, xlab = 'Fitted values', ylab = 'Residuals')
+trend_line <- lm(bivariate_model$residuals ~ advertising$TV)
+abline(trend_line, col = "darkgreen", lwd = 2)
+```
+
+
+
+
+
+
+
+
+

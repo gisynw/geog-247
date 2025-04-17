@@ -1,0 +1,139 @@
+---
+title: "Week02_Lecture"
+author: "Yanan Wu"
+date: "2025-01-06"
+output: 
+  html_document:
+    df_print: paged
+    toc: TRUE
+    toc_float: TRUE
+---
+## 1. Calculating confidence interval
+
+calculate the confidence interval when sample size is 800, sample proportion is 0.34 for a 95% confidence interval
+
+```{r}
+library(interpretCI)
+x=propCI(n = 800, p = 0.34, alpha = 0.05)
+x
+```
+
+```{r}
+n = 800
+p = 0.34
+
+se = sqrt(p*(1-p)/n)
+print(c('stand error:', se))
+
+margin <- qnorm(0.975)*se
+print(c('margin of error:', margin))
+
+print(c('confidence interval: ', c(p - margin, p + margin)))
+```
+
+## 2. Variability of sample
+
+```{r}
+pop_size <- 250000000
+possible_entries <- c(rep("support", 0.88 * pop_size), rep("not", 0.12 * pop_size))
+
+sampled_entries <- sample(possible_entries, size = 1000)
+
+sum(sampled_entries == "support") / 1000
+```
+### 2.1 Sampling distribution of proportion 
+
+```{r}
+stu_size <- 250000000
+public_use <- c(rep("public", 0.88 * stu_size),rep("nopublic", 0.12 * stu_size))
+# 2. Sample 1000 entries without replacement.
+p_hat_values <- c()
+
+# Repeat the sampling process 1000 times
+for (i in 1:1000) {
+  # Sample 1000 entries without replacement
+  sample <- sample(public_use, size = 1000)
+  # Compute p-hat for the current sample
+  p_hat_values <- c(p_hat_values, sum(sample == "public") / 1000)
+}
+
+# Display the first few p-hat values
+mean_value = mean(p_hat_values)
+# Plot the sampling distribution of p-hat
+hist(p_hat_values, main = "Sampling distribution of sample proportion", xlab = "sample_proportion", col = "lightblue", border = "white")
+abline(v = mean_value, col = "red", lwd = 2, lty = 2)
+
+# Add text to display the mean value
+text(mean_value, max(hist(p_hat_values, plot = FALSE)$counts), 
+     labels = paste("Mean =", round(mean_value, 3)), 
+     pos = 4, col = "red", cex = 1.2)
+
+```
+
+
+### 2.2 Sampling distribution from sample
+
+Suppose you want to estimate the proportion of people who support solor energy expansion, but you don’t have access to the entire population. In this case, you could take a sample of population and use the proportion of sample in your sample who support solar energy expansion as your best guess for the unknown proportion in the overall population.
+
+
+```{r}
+stu_size <- 250000000
+public_use <- c(rep("public", 0.88 * stu_size),rep("nopublic", 0.12 * stu_size))
+# 2. Sample 1000 entries without replacement.
+p_hat_values <- c()
+
+samples <- sample(public_use, size = 1000)
+
+# Repeat the sampling process 1000 times
+for (i in 1:1000) {
+  # Sample 1000 entries without replacement
+  sampled_students <- sample(samples, size = 500)
+  # Compute p-hat for the current sample
+  p_hat_values <- c(p_hat_values, sum(sampled_students == "public") / 500)
+}
+
+# Display the first few p-hat values
+mean_value = mean(p_hat_values)
+# Plot the sampling distribution of p-hat
+hist(p_hat_values, main = "Simulated sample proportion", xlab = "sample_proportion", col = "blue", border = "white")
+
+abline(v = mean_value, col = "red", lwd = 2, lty = 2)
+
+# Add text to display the mean value
+text(mean_value, max(hist(p_hat_values, plot = FALSE)$counts), 
+     labels = paste("Mean =", round(mean_value, 3)), 
+     pos = 4, col = "red", cex = 1.2)
+
+```
+
+## 3. Code about graphs in slides
+
+```{r}
+library(ggplot2)
+
+# Create a data frame with two normal distributions
+data <- data.frame(
+  x = seq(-5, 8, length.out = 1000),
+  y1 = dnorm(seq(-5, 8, length.out = 1000), mean = 0, sd = 1),
+  y2 = dnorm(seq(-5, 8, length.out = 1000), mean = 3, sd = 1)
+)
+
+# Plot the two normal distributions using ggplot2
+ggplot(data, aes(x = x)) +
+  geom_line(aes(y = y1, color = "Mean = 0"), size = 1) +
+  geom_line(aes(y = y2, color = "Mean = 3"), size = 1) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "blue", size = 1) +
+  geom_vline(xintercept = 3, linetype = "dashed", color = "red", size = 1) +
+  labs(title = "",
+       x = "x",
+       y = "Density") +
+  scale_color_manual(values = c("Mean = 0" = "blue", "Mean = 3" = "red")) +
+  theme_minimal()
+```
+
+
+
+
+
+
+

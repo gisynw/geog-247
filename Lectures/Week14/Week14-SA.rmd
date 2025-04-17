@@ -1,0 +1,393 @@
+---
+title: "Spatial Autocorrelation Analysis in R"
+author: "Yanan Wu"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
+    highlight: tango
+    code_folding: show
+---
+## Why is Spatial Autocorrelation Important?
+
+Understanding spatial autocorrelation is crucial because:
+
+1. It indicates the presence of spatial dependence in your data
+2. It can reveal underlying spatial processes
+3. It may violate the independence assumption of standard statistical models
+4. It can help identify spatial clusters or hotspots
+
+## Types of Spatial Autocorrelation
+
+- **Positive spatial autocorrelation**: Similar values cluster together (high near high, low near low)
+- **Negative spatial autocorrelation**: Dissimilar values cluster together (high near low)
+- **No spatial autocorrelation**: Values are randomly distributed in space
+
+# 2. Setting Up the Environment
+
+Let's start by installing and loading the necessary packages:
+
+```{r packages, message=FALSE, warning=FALSE}
+# Install necessary packages (if not already installed)
+packages <- c("sf", "spdep", "tmap", "tmaptools", "spData", "dplyr", 
+              "ggplot2", "classInt", "RColorBrewer", "viridis", "knitr")
+install.packages(packages[!packages %in% installed.packages()[,"Package"]], 
+                 repos = "https://cran.r-project.org/")
+
+# Load the packages
+library(tmap)       # For thematic maps
+library(tmaptools)  # Additional mapping tools
+library(dplyr)      # For data manipulation
+library(ggplot2)    # For plotting
+library(classInt)   # For classification
+library(RColorBrewer) # For color palettes
+library(viridis)    # For color palettes
+library(knitr)      # For nice table output
+library(sp)
+
+# Set tmap to plot mode
+# tmap_mode("plot")
+```
+
+# 3. Loading and Exploring Spatial Data
+
+For this tutorial, we'll use the `columbus` dataset from the `spData` package. This dataset contains 49 neighborhoods in Columbus, Ohio with various socioeconomic variables, including crime rates, housing values, and income.
+
+```{r load_data, message=FALSE, warning=FALSE}
+# Load required packages
+library(sf)
+library(spdep)
+library(spData)
+
+# Load the Columbus polygon shapefile correctly
+# columbus_poly <- st_read(system.file("shapes/columbus.shp", package="spData"))
+columbus_poly <- sf::st_read(system.file("shapes/columbus.gpkg", package="spData")[1])
+# columbus_poly <- st_read(system.file("columbus.shp", package="spData"))
+# View the first few rows
+head(columbus_poly)
+
+# Create a simple map to visualize the areas
+tm_shape(columbus_poly) +
+  tm_fill("CRIME", style = "quantile", palette = "Reds", title = "Crime Rate") +
+  tm_borders() +
+  tm_layout(title = "Crime Rates in Columbus Neighborhoods",
+            legend.outside = TRUE)
+```
+Let's explore the distribution of these variables:
+
+```{r data_exploration}
+# Summary statistics
+summary(columbus_poly[, c("CRIME")])
+
+# Histograms of key variables
+par(mfrow = c(1, 1))
+hist(columbus_poly$CRIME, main = "Crime Rate", xlab = "Crime Rate", col = "lightblue")
+
+par(mfrow = c(1, 1))
+
+# Create a series of choropleth maps for key variables
+tm_shape(columbus_poly) +
+  tm_fill(c("CRIME"), 
+          style = "quantile", 
+          palette = list("Reds"),
+          title = c("Crime Rate")) +
+  tm_borders() +
+  tm_facets(ncol = 1) +
+  tm_layout(legend.outside = TRUE)
+```
+
+Looking at the maps, we can visually assess potential spatial patterns. For instance, we might observe that high crime areas tend to cluster together, or that neighborhoods with higher housing values are spatially proximate. However, to quantify these patterns, we need formal spatial autocorrelation analysis.
+
+# 4. Creating Spatial Weights
+
+Before we can analyze spatial autocorrelation, we need to define neighborhood relationships between areas. This is done using a spatial weights matrix.
+
+## Types of Spatial Weights
+
+There are several ways to define neighborhood relationships:
+
+1. **Contiguity-based**: Areas that share boundaries
+   - Queen: Areas that share any point (borders or corners)
+   - Rook: Areas that share borders only
+
+2. **Distance-based**: Areas within a certain distance of each other
+   - Fixed distance band
+   - K-nearest neighbors
+
+3. **General weights**: Custom weights based on other criteria
+
+## Queen Contiguity Weights
+
+Let's create queen contiguity weights, where regions are neighbors if they share even a single boundary point:
+
+```{r queen_weights}
+# Create queen contiguity weights
+queen_nb <- poly2nb(columbus_poly, queen = TRUE)
+summary(queen_nb)
+print(queen_nb)
+# Extract coordinates
+columbus_sp <- as(columbus_poly, "Spatial")
+coords <- coordinates(columbus_sp)
+
+# Plot the queen contiguity network
+
+plot(columbus_sp, border = "grey")
+plot(queen_nb, coords, add = TRUE, col = "red", lwd = 1)
+title("Queen Contiguity Neighbors")
+
+# Convert to weights list object
+queen_weights <- nb2listw(queen_nb, style = "W")
+
+library(tmap)
+
+tm_shape(columbus_poly) +
+  tm_fill("CRIME", style = "quantile", palette = "Reds", title = "Crime Rate") +
+  tm_borders() +
+  # Highlight the first polygon
+  tm_shape(columbus_poly[3, ]) +
+  tm_borders(lwd = 3, col = "blue") +
+  tm_layout(title = "",
+            legend.outside = TRUE)
+
+```
+
+## Rook Contiguity Weights
+
+Alternatively, we can create rook contiguity weights, where regions are neighbors only if they share a border segment:
+
+```{r rook_weights}
+# Create rook contiguity weights
+rook_nb <- poly2nb(columbus_poly, queen = FALSE)
+summary(rook_nb)
+
+# Plot the rook contiguity network
+plot(columbus_sp, border = "grey")
+plot(rook_nb, coords, add = TRUE, col = "red", lwd = 1)
+title("Rook Contiguity Neighbors")
+
+# Convert to weights list object
+rook_weights <- nb2listw(rook_nb, style = "W")
+```
+
+## Distance-Based Weights
+
+We can also create distance-based weights, where neighborhoods within a certain distance are considered neighbors:
+
+```{r distance_weights}
+
+
+# Create distance-based neighbors
+# First, determine an appropriate distance threshold
+coords_dist <- as.matrix(dist(coords))
+knn1_dist <- apply(coords_dist, 1, function(x) sort(x)[2])
+max_knn1 <- max(knn1_dist)
+max_knn1
+
+# Create distance-based neighbors list with a threshold that ensures all areas have at least one neighbor
+dist_nb <- dnearneigh(coords, 0, max_knn1 * 1.1)
+summary(dist_nb)
+
+# Plot the distance-based neighbor network
+plot(columbus_sp, border = "grey")
+plot(dist_nb, coords, add = TRUE, col = "green", lwd = 1)
+title("Distance-Based Neighbors")
+
+# Convert to weights list object
+dist_weights <- nb2listw(dist_nb, style = "W")
+```
+
+## K-Nearest Neighbors Weights
+
+Another approach is to use k-nearest neighbors, where each region is connected to its k closest neighbors:
+
+```{r knn_weights}
+# Create k-nearest neighbors (k=4)
+knn_nb <- knn2nb(knearneigh(coords, k = 4))
+summary(knn_nb)
+
+# Plot the k-nearest neighbors network
+plot(columbus_sp, border = "grey")
+plot(knn_nb, coords, add = TRUE, col = "purple", lwd = 1)
+title("K-Nearest Neighbors (k=4)")
+
+# Convert to weights list object
+knn_weights <- nb2listw(knn_nb, style = "W")
+```
+
+# 5. Global Spatial Autocorrelation
+
+Global spatial autocorrelation measures the overall degree of similarity among spatially close observations. Moran's I is the most common statistic for this purpose.
+
+## Moran's I
+
+Moran's I ranges from -1 to 1:
+- Values close to 1 indicate positive spatial autocorrelation (clustering)
+- Values close to -1 indicate negative spatial autocorrelation (dispersion)
+- Values close to 0 indicate random spatial pattern
+
+Let's calculate Moran's I for crime rates:
+
+```{r morans_i}
+# Calculate Moran's I for crime rates using queen weights
+moran_crime_queen <- moran.test(columbus_sp$CRIME, queen_weights)
+print(moran_crime_queen)
+```
+
+## Interpreting Moran's I
+
+The output of the Moran's I test includes:
+
+1. **Moran I statistic**: The actual I value, ranging from -1 to 1
+2. **Expected value**: The expected value of I under the null hypothesis of no spatial autocorrelation (usually close to 0)
+3. **Variance**: The variance of I
+4. **Z-score**: The standard score, indicating how many standard deviations the I statistic is from the expected value
+5. **p-value**: The probability of observing the calculated I value (or a more extreme one) under the null hypothesis
+
+A significant positive I value (with a low p-value) indicates positive spatial autocorrelation - similar values tend to cluster together geographically. A significant negative I value indicates negative spatial autocorrelation - dissimilar values tend to cluster together.
+
+## Moran Scatterplot
+
+A Moran scatterplot visualizes the relationship between a variable and its spatial lag (the weighted average of neighboring values). The x-axis represents the standardized variable values, and the y-axis represents the standardized spatial lag values.
+
+```{r moran_scatterplot}
+# Create Moran scatterplot for crime rates
+moran.plot(columbus_sp$CRIME, queen_weights, 
+           labels = as.character(columbus_sp$POLYID), 
+           xlab = "Crime Rate (standardized)", 
+           ylab = "Spatially Lagged Crime Rate")
+```
+
+The Moran scatterplot has four quadrants:
+- **High-High (upper right)**: High values surrounded by high values
+- **Low-Low (lower left)**: Low values surrounded by low values
+- **High-Low (lower right)**: High values surrounded by low values
+- **Low-High (upper left)**: Low values surrounded by high values
+
+The slope of the regression line through these points is equivalent to Moran's I.
+
+# 6. Local Spatial Autocorrelation
+
+While global measures tell us about the overall pattern, local measures identify specific clusters or outliers at the local level.
+
+## Local Indicators of Spatial Association (LISA)
+
+LISA statistics, introduced by Luc Anselin, decompose global spatial autocorrelation into contributions from individual locations. They help identify:
+- Local clusters (hotspots and coldspots)
+- Spatial outliers
+
+Let's calculate local Moran's I:
+
+```{r lisa}
+# Calculate local Moran's I for crime rates
+lisa_crime <- localmoran(columbus_sp$CRIME, queen_weights)
+head(lisa_crime)
+
+# Add local Moran statistics to our spatial data
+columbus_sp$local_moran <- lisa_crime[, 1]  # Local Moran's I statistic
+columbus_sp$local_moran_p <- lisa_crime[, 5]  # P-value
+
+columbus_sf <- st_as_sf(columbus_sp)
+
+# Map the local Moran's I values
+tm_shape(columbus_sf) +
+  tm_fill("local_moran", style = "jenks", palette = "-RdBu",
+          midpoint = 0, title = "Local Moran's I") +
+  tm_borders() +
+  tm_layout(title = "Local Spatial Autocorrelation of Crime Rates",
+            legend.outside = TRUE)
+
+# Map the significance of local Moran's I
+tm_shape(columbus_sf) +
+  tm_fill("local_moran_p", style = "fixed", 
+          breaks = c(0, 0.01, 0.05, 0.1, 1),
+          palette = "-Greens", title = "p-value") +
+  tm_borders() +
+  tm_layout(title = "Significance of Local Moran's I",
+            legend.outside = TRUE)
+```
+
+## Creating a LISA Cluster Map
+
+LISA cluster maps classify locations into significant clusters and outliers:
+
+```{r lisa_cluster}
+# Create a function to classify LISA clusters
+lisa_clusters <- function(var, lisa, p_value, p_threshold = 0.05) {
+  # Standardize the variable
+  z_var <- scale(var)
+  
+  # Calculate spatial lag of standardized variable
+  lag_var <- lag.listw(queen_weights, z_var)
+  
+  # Create classifications
+  clusters <- rep("Not Significant", length(var))
+  clusters[lisa > 0 & p_value <= p_threshold & z_var > 0 & lag_var > 0] <- "High-High"
+  clusters[lisa > 0 & p_value <= p_threshold & z_var < 0 & lag_var < 0] <- "Low-Low"
+  clusters[lisa < 0 & p_value <= p_threshold & z_var > 0 & lag_var < 0] <- "High-Low"
+  clusters[lisa < 0 & p_value <= p_threshold & z_var < 0 & lag_var > 0] <- "Low-High"
+  
+  return(factor(clusters, levels = c("High-High", "Low-Low", "High-Low", "Low-High", "Not Significant")))
+}
+
+# Create LISA clusters for crime rates
+columbus_sf$lisa_cluster <- lisa_clusters(columbus_sf$CRIME, 
+                                         columbus_sf$local_moran, 
+                                         columbus_sf$local_moran_p)
+
+# Map the LISA clusters
+tm_shape(columbus_sf) +
+  tm_fill("lisa_cluster", 
+          palette = c("red", "blue", "pink", "lightblue", "white"),
+          title = "LISA Cluster") +
+  tm_borders() +
+  tm_layout(title = "LISA Cluster Map of Crime Rates",
+            legend.outside = TRUE)
+```
+
+The LISA cluster map identifies:
+- **High-High clusters (red)**: High-crime areas surrounded by high-crime areas (hotspots)
+- **Low-Low clusters (blue)**: Low-crime areas surrounded by low-crime areas (coldspots)
+- **High-Low outliers (pink)**: High-crime areas surrounded by low-crime areas
+- **Low-High outliers (light blue)**: Low-crime areas surrounded by high-crime areas
+- **Not significant (white)**: Areas where the pattern is not statistically significant
+
+This integrated approach can help policymakers:
+
+1. Identify areas with significant clustering of high crime rates
+2. Prioritize interventions in areas that show consistent patterns across different methods
+3. Target resources more effectively based on spatial patterns
+4. Design context-specific interventions based on local conditions
+
+# 10. Advanced Topics and Considerations
+
+## Modifiable Areal Unit Problem (MAUP)
+
+The MAUP refers to how results of spatial analyses can be affected by the specific boundaries used to aggregate data. Different boundary definitions can lead to different patterns and conclusions.
+
+## Edge Effects
+
+Edge effects occur because areas at the boundary of the study region have fewer neighbors, which can affect the calculation of spatial statistics.
+
+## Statistical Significance vs. Practical Significance
+
+Statistical significance doesn't always translate to practical importance. Consider the magnitude of the effects alongside p-values.
+
+## Spatio-temporal Autocorrelation
+
+Real-world processes often have both spatial and temporal dimensions. Methods exist to analyze spatio-temporal autocorrelation.
+
+# 11. Conclusion
+
+In this tutorial, we've explored:
+
+1. **Global spatial autocorrelation** using Moran's I to detect overall clustering patterns
+2. **Local spatial autocorrelation** using LISA and Getis-Ord Gi* to identify specific clusters and hotspots
+3. **Different spatial weight structures** and their effects on the analysis
+4. **Bivariate spatial relationships** between different variables
+5. **Practical application** of these methods for policy interventions
+
+Spatial autocorrelation analysis provides a powerful framework for understanding spatial patterns, identifying clusters, and informing targeted interventions. By applying these techniques, researchers and policymakers can gain deeper insights into spatial processes and make more informed decisions.
