@@ -1,0 +1,86 @@
+---
+title: "Lab08 Spatial Autocorrelation Analysis Lab Questions"
+author: "Yanan Wu"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
+    highlight: tango
+    code_folding: show
+---
+
+## Task 1.a
+```{r}
+# Load necessary libraries and data
+library(sf)
+library(spdep)
+library(spData)
+library(tmap)
+library(sp)
+
+# Load columbus shapefile
+columbus_poly <- sf::st_read(system.file("shapes/columbus.gpkg", package="spData")[1])
+columbus_sp <- st_as_sf(columbus_poly)
+
+tm_shape(columbus_sp) +
+  tm_fill("HOVAL", style = "quantile", palette = "Reds", title = "Housing Price") +
+  tm_borders() +
+  # Highlight the first polygon
+    tm_layout(title = "",
+            legend.outside = TRUE)
+```
+
+## Task 1.b and 1.c
+
+```{r message=FALSE, warning=FALSE}
+# Create queen contiguity weights
+queen_nb <- poly2nb(columbus_sp, queen = TRUE)
+queen_weights <- nb2listw(queen_nb, style = "W")
+
+# Calculate global Moran's I for housing values
+moran_hoval <- moran.test(columbus_sp$HOVAL, queen_weights)
+print(moran_hoval)
+
+# Create Moran scatterplot
+moran.plot(columbus_sp$HOVAL, queen_weights,
+           labels = as.character(columbus_sp$POLYID),
+           xlab = "Housing Value (standardized)",
+           ylab = "Spatially Lagged Housing Value")
+```
+
+## Answer 2
+
+```{r}
+# Calculate local Moran's I for Housing Value
+lisa_crime <- localmoran(columbus_sp$HOVAL, queen_weights)
+head(lisa_crime)
+
+# Add local Moran statistics to our spatial data
+columbus_sp$local_moran <- lisa_crime[, 1]  # Local Moran's I statistic
+columbus_sp$local_moran_p <- lisa_crime[, 5]  # P-value
+
+columbus_sf <- st_as_sf(columbus_sp)
+
+# Map the local Moran's I values
+tm_shape(columbus_sf) +
+  tm_fill("local_moran", style = "jenks", palette = "-RdBu",
+          midpoint = 0, title = "Local Moran's I") +
+  tm_borders() +
+  tm_layout(title = "Local Spatial Autocorrelation of Housing Price",
+            legend.outside = TRUE)
+
+# Map the significance of local Moran's I
+tm_shape(columbus_sf) +
+  tm_fill("local_moran_p", style = "fixed", 
+          breaks = c(0, 0.01, 0.05, 0.1, 1),
+          palette = "-Greens", title = "p-value") +
+  tm_borders() +
+  tm_layout(title = "Significance of Local Moran's I",
+            legend.outside = TRUE)
+```
+
+

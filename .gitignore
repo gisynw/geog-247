@@ -2,7 +2,8 @@
 *.zip
 *.shp
 *.tif.ovr
-*。xml
+*.xml
+/docs/Lectures/Week13/Data-and-Script
 /docs/Lectures/Week10_multiple_bands/landsat.tif
 /docs/Lectures/Week12/ArcGISPro/**
 /docs/Labs/Lab07/rs/**
